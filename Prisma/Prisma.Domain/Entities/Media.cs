@@ -26,4 +26,6 @@ public class Media
 
 
     public ICollection<PostMedia> PostMedias { get; set; } = [];
+
+    public ICollection<MediaListItem> MediaListItems { get; set; } = [];
 }
