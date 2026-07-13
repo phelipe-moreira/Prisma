@@ -34,4 +34,6 @@ public class Ngo
     public ICollection<NgoCause> NgoCauses { get; set; } = [];
 
     public ICollection<UserNgo> UserNgos { get; set; } = [];
+
+    public ICollection<UserNgoFollow> UserNgoFollows { get; set; } = [];
 }

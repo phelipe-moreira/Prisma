@@ -11,5 +11,5 @@ public class UserNgoFollow
 
     public User User { get; set; } = null!;
 
-    public Post Post { get; set; } = null!;
+    public Ngo Ngo { get; set; } = null!;
 }

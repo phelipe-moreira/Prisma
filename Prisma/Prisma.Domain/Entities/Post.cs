@@ -27,8 +27,6 @@ public class Post
 
     public ICollection<SavedPost> SavedPosts { get; set; } = [];
 
-    public ICollection<UserNgoFollow> UserNgoFollows { get; set; } = [];
-
     public ICollection<Comment> Comments { get; set; } = [];
 }
 
