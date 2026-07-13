@@ -22,4 +22,8 @@ public class Comment
     public Post Post { get; set; } = null!;
 
     public User User { get; set; } = null!;
+
+    public Comment? ParentComment { get; set; }
+
+    public ICollection<Comment> Replies { get; set; } = [];
 }
