@@ -16,8 +16,10 @@ public class Post
 
     public DateTime CreatedAt { get; set; }
 
-    public DateTime UpdatedAt { get; set; } 
+    public DateTime UpdatedAt { get; set; }
 
+
+    public Ngo Ngo { get; set; } = null!;
 
     public ICollection<PostLike> PostLikes { get; set; } = [];
 

@@ -31,6 +31,8 @@ public class Ngo
     public bool IsActive { get; set; }
 
 
+    public ICollection<Post> Posts { get; set; } = [];
+
     public ICollection<NgoCause> NgoCauses { get; set; } = [];
 
     public ICollection<UserNgo> UserNgos { get; set; } = [];
