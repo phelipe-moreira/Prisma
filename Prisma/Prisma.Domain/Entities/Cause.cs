@@ -9,5 +9,5 @@ public class Cause
     public string? Description { get; set; }
 
 
-    public ICollection<NgoCause> NgoCause { get; set; } = [];
+    public ICollection<NgoCause> NgoCauses { get; set; } = [];
 }
