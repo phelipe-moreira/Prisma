@@ -10,6 +10,8 @@ public class PostMediaConfiguration : IEntityTypeConfiguration<PostMedia>
     {
         builder.ToTable("post_medias");
 
+        builder.HasKey(x => new { x.PostId, x.MediaId });
+
         builder.HasOne(x => x.Post)
              .WithMany(x => x.PostMedias)
              .HasForeignKey(x => x.PostId)
