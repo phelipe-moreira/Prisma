@@ -8,7 +8,7 @@ public class Media
 
     public MediaSource Source { get; set; }
 
-    public string? ExternalId { get; set; }
+    public required string ExternalId { get; set; }
 
     public MediaType Type { get; set; }
 
