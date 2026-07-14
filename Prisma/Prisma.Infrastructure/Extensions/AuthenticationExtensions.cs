@@ -39,21 +39,15 @@ namespace Prisma.Infrastructure.Extensions
                         new TokenValidationParameters
                         {
                             ValidateIssuer = true,
-
                             ValidateAudience = true,
-
                             ValidateLifetime = true,
-
                             ValidateIssuerSigningKey = true,
-
 
                             ValidIssuer =
                                 jwtSettings.Issuer,
 
-
                             ValidAudience =
                                 jwtSettings.Audience,
-
 
                             IssuerSigningKey =
                                 new SymmetricSecurityKey(
