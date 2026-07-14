@@ -25,7 +25,7 @@ namespace Prisma.Application.Services
             _jwtTokenService = jwtTokenService;
         }
 
-        public async Task<AuthResponse> LoginAsync(LoginRequest request, CancellationToken cancellationToken)
+        public async Task<AuthToken> LoginAsync(LoginRequest request, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByEmailAsync(request.Email, cancellationToken);
 
@@ -58,7 +58,7 @@ namespace Prisma.Application.Services
             await _refreshTokenRepository.UpdateAsync(token, cancellationToken);
         }
 
-        public async Task<AuthResponse> RefreshTokenAsync(RefreshTokenRequest request, CancellationToken cancellationToken)
+        public async Task<AuthToken> RefreshTokenAsync(RefreshTokenRequest request, CancellationToken cancellationToken)
         {
             var refreshToken = await _refreshTokenRepository.GetByTokenAsync(request.RefreshToken, cancellationToken);
 
@@ -86,7 +86,7 @@ namespace Prisma.Application.Services
             return await GenerateAndPersistTokensAsync(user, cancellationToken);
         }
 
-        public async Task<AuthResponse> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken)
+        public async Task<AuthToken> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken)
         {
             var emailAlreadyExists =
                 await _userRepository.ExistsByEmailAsync(
@@ -108,7 +108,7 @@ namespace Prisma.Application.Services
             return await GenerateAndPersistTokensAsync(user, cancellationToken);
         }
 
-        private async Task<AuthResponse> GenerateAndPersistTokensAsync(User user, CancellationToken cancellationToken)
+        private async Task<AuthToken> GenerateAndPersistTokensAsync(User user, CancellationToken cancellationToken)
         {
             var tokenResult = _jwtTokenService.GenerateTokens(user);
 
@@ -119,7 +119,7 @@ namespace Prisma.Application.Services
 
             await _refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
 
-            return new AuthResponse
+            return new AuthToken
             {
                 AccessToken = tokenResult.AccessToken,
                 RefreshToken = tokenResult.RefreshToken,
