@@ -1,4 +1,5 @@
 ﻿using Prisma.Application.DTOs.Auth;
+using Prisma.Application.Errors;
 using Prisma.Application.Interfaces;
 using Prisma.Application.Results;
 using Prisma.Domain.Entities;
@@ -31,33 +32,15 @@ namespace Prisma.Application.Services
             var user = await _userRepository.GetByEmailAsync(request.Email, cancellationToken);
 
             if (user is null)
-            {
-                return Result<AuthToken>.Failure(
-                    new Error(
-                        "AUTH.INVALID_CREDENTIALS",
-                        "E-mail ou senha inválidos.",
-                        ErrorType.Unauthorized));
-            }
+                return Result<AuthToken>.Failure(AuthErrors.InvalidCredentials);
 
             if (!user.IsActive)
-            {
-                return Result<AuthToken>.Failure(
-                    new Error(
-                        "AUTH.USER_INACTIVE",
-                        "Usuário desativado.",
-                        ErrorType.Forbidden));
-            }
+                return Result<AuthToken>.Failure(AuthErrors.UserInactive);
 
             var passwordIsValid = _passwordHasher.Verify(request.Password, user.PasswordHash);
 
             if (!passwordIsValid)
-            {
-                return Result<AuthToken>.Failure(
-                    new Error(
-                        "AUTH.INVALID_CREDENTIALS",
-                        "E-mail ou senha inválidos.",
-                        ErrorType.Unauthorized));
-            }
+                return Result<AuthToken>.Failure(AuthErrors.InvalidCredentials);
 
             return await GenerateAndPersistTokensAsync(user, cancellationToken);
         }
@@ -79,51 +62,21 @@ namespace Prisma.Application.Services
             var refreshToken = await _refreshTokenRepository.GetByTokenAsync(request.RefreshToken, cancellationToken);
 
             if (refreshToken is null)
-            {
-                return Result<AuthToken>.Failure(
-                    new Error(
-                        "AUTH.INVALID_REFRESH_TOKEN",
-                        "Refresh Token inválido.",
-                        ErrorType.Unauthorized));
-            }
+                return Result<AuthToken>.Failure(AuthErrors.InvalidRefreshToken);
 
             if (refreshToken.IsExpired)
-            {
-                return Result<AuthToken>.Failure(
-                    new Error(
-                        "AUTH.REFRESH_TOKEN_EXPIRED",
-                        "Refresh Token expirado.",
-                        ErrorType.Unauthorized));
-            }
+                return Result<AuthToken>.Failure(AuthErrors.RefreshTokenExpired);
 
             if (refreshToken.IsRevoked)
-            {
-                return Result<AuthToken>.Failure(
-                    new Error(
-                        "AUTH.REFRESH_TOKEN_REVOKED",
-                        "Refresh Token revogado.",
-                        ErrorType.Unauthorized));
-            }
+                return Result<AuthToken>.Failure(AuthErrors.RefreshTokenRevoked);
 
             var user = await _userRepository.GetByIdAsync(refreshToken.UserId, cancellationToken);
 
             if (user is null)
-            {
-                return Result<AuthToken>.Failure(
-                    new Error(
-                        "AUTH.USER_NOT_FOUND",
-                        "Usuário não encontrado.",
-                        ErrorType.NotFound));
-            }
+                return Result<AuthToken>.Failure(AuthErrors.UserNotFound);
 
             if (!user.IsActive)
-            {
-                return Result<AuthToken>.Failure(
-                    new Error(
-                        "AUTH.USER_INACTIVE",
-                        "Usuário desativado.",
-                        ErrorType.Forbidden));
-            }
+                return Result<AuthToken>.Failure(AuthErrors.UserInactive);
 
             refreshToken.Revoke();
 
@@ -140,13 +93,7 @@ namespace Prisma.Application.Services
                     cancellationToken);
 
             if (emailAlreadyExists)
-            {
-                return Result<AuthToken>.Failure(
-                    new Error(
-                        "AUTH.EMAIL_ALREADY_EXISTS",
-                        "Já existe um usuário com este e-mail.",
-                        ErrorType.Conflict));
-            }
+                return Result<AuthToken>.Failure(AuthErrors.EmailAlreadyExists);
 
             var passwordHash = _passwordHasher.Hash(request.Password);
 
