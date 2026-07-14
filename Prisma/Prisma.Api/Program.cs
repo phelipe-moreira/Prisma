@@ -1,13 +1,6 @@
-using Microsoft.EntityFrameworkCore;
-using Prisma.Infrastructure.Context;
 using Prisma.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
-
-/*builder.Services.AddDbContext<AppDbContext>(option =>
-{
-    option.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
-});*/
 
 builder.Services.AddInfrastructure(builder.Configuration);
 

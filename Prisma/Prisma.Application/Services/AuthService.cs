@@ -1,5 +1,6 @@
 ﻿using Prisma.Application.DTOs.Auth;
 using Prisma.Application.Interfaces;
+using Prisma.Application.Results;
 using Prisma.Domain.Entities;
 using Prisma.Domain.Interfaces;
 using Prisma.Domain.Interfaces.Security;
@@ -25,20 +26,38 @@ namespace Prisma.Application.Services
             _jwtTokenService = jwtTokenService;
         }
 
-        public async Task<AuthToken> LoginAsync(LoginRequest request, CancellationToken cancellationToken)
+        public async Task<Result<AuthToken>> LoginAsync(LoginRequest request, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByEmailAsync(request.Email, cancellationToken);
 
             if (user is null)
-                throw new InvalidOperationException("E-mail ou senha inválidos.");
+            {
+                return Result<AuthToken>.Failure(
+                    new Error(
+                        "AUTH.INVALID_CREDENTIALS",
+                        "E-mail ou senha inválidos.",
+                        ErrorType.Unauthorized));
+            }
 
             if (!user.IsActive)
-                throw new InvalidOperationException("Usuário desativado.");
+            {
+                return Result<AuthToken>.Failure(
+                    new Error(
+                        "AUTH.USER_INACTIVE",
+                        "Usuário desativado.",
+                        ErrorType.Forbidden));
+            }
 
             var passwordIsValid = _passwordHasher.Verify(request.Password, user.PasswordHash);
 
             if (!passwordIsValid)
-                throw new InvalidOperationException("E-mail ou senha inválidos.");
+            {
+                return Result<AuthToken>.Failure(
+                    new Error(
+                        "AUTH.INVALID_CREDENTIALS",
+                        "E-mail ou senha inválidos.",
+                        ErrorType.Unauthorized));
+            }
 
             return await GenerateAndPersistTokensAsync(user, cancellationToken);
         }
@@ -47,10 +66,7 @@ namespace Prisma.Application.Services
         {
             var token = await _refreshTokenRepository.GetByTokenAsync(refreshToken, cancellationToken);
 
-            if (token is null)
-                return;
-
-            if (token.IsRevoked)
+            if (token is null || token.IsRevoked)
                 return;
 
             token.Revoke();
@@ -58,26 +74,56 @@ namespace Prisma.Application.Services
             await _refreshTokenRepository.UpdateAsync(token, cancellationToken);
         }
 
-        public async Task<AuthToken> RefreshTokenAsync(RefreshTokenRequest request, CancellationToken cancellationToken)
+        public async Task<Result<AuthToken>> RefreshTokenAsync(RefreshTokenRequest request, CancellationToken cancellationToken)
         {
             var refreshToken = await _refreshTokenRepository.GetByTokenAsync(request.RefreshToken, cancellationToken);
 
             if (refreshToken is null)
-                throw new InvalidOperationException("Refresh Token inválido.");
+            {
+                return Result<AuthToken>.Failure(
+                    new Error(
+                        "AUTH.INVALID_REFRESH_TOKEN",
+                        "Refresh Token inválido.",
+                        ErrorType.Unauthorized));
+            }
 
             if (refreshToken.IsExpired)
-                throw new InvalidOperationException("Refresh Token expirado.");
+            {
+                return Result<AuthToken>.Failure(
+                    new Error(
+                        "AUTH.REFRESH_TOKEN_EXPIRED",
+                        "Refresh Token expirado.",
+                        ErrorType.Unauthorized));
+            }
 
             if (refreshToken.IsRevoked)
-                throw new InvalidOperationException("Refresh Token revogado.");
+            {
+                return Result<AuthToken>.Failure(
+                    new Error(
+                        "AUTH.REFRESH_TOKEN_REVOKED",
+                        "Refresh Token revogado.",
+                        ErrorType.Unauthorized));
+            }
 
             var user = await _userRepository.GetByIdAsync(refreshToken.UserId, cancellationToken);
 
             if (user is null)
-                throw new InvalidOperationException("Usuário não encontrado.");
+            {
+                return Result<AuthToken>.Failure(
+                    new Error(
+                        "AUTH.USER_NOT_FOUND",
+                        "Usuário não encontrado.",
+                        ErrorType.NotFound));
+            }
 
             if (!user.IsActive)
-                throw new InvalidOperationException("Usuário desativado.");
+            {
+                return Result<AuthToken>.Failure(
+                    new Error(
+                        "AUTH.USER_INACTIVE",
+                        "Usuário desativado.",
+                        ErrorType.Forbidden));
+            }
 
             refreshToken.Revoke();
 
@@ -86,7 +132,7 @@ namespace Prisma.Application.Services
             return await GenerateAndPersistTokensAsync(user, cancellationToken);
         }
 
-        public async Task<AuthToken> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken)
+        public async Task<Result<AuthToken>> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken)
         {
             var emailAlreadyExists =
                 await _userRepository.ExistsByEmailAsync(
@@ -94,7 +140,13 @@ namespace Prisma.Application.Services
                     cancellationToken);
 
             if (emailAlreadyExists)
-                throw new InvalidOperationException("Já existe um usuário com este e-mail.");
+            {
+                return Result<AuthToken>.Failure(
+                    new Error(
+                        "AUTH.EMAIL_ALREADY_EXISTS",
+                        "Já existe um usuário com este e-mail.",
+                        ErrorType.Conflict));
+            }
 
             var passwordHash = _passwordHasher.Hash(request.Password);
 
@@ -108,7 +160,7 @@ namespace Prisma.Application.Services
             return await GenerateAndPersistTokensAsync(user, cancellationToken);
         }
 
-        private async Task<AuthToken> GenerateAndPersistTokensAsync(User user, CancellationToken cancellationToken)
+        private async Task<Result<AuthToken>> GenerateAndPersistTokensAsync(User user, CancellationToken cancellationToken)
         {
             var tokenResult = _jwtTokenService.GenerateTokens(user);
 
@@ -119,12 +171,14 @@ namespace Prisma.Application.Services
 
             await _refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
 
-            return new AuthToken
+            var authToken = new AuthToken
             {
                 AccessToken = tokenResult.AccessToken,
                 RefreshToken = tokenResult.RefreshToken,
                 ExpiresAt = tokenResult.AccessTokenExpiresAt
             };
+
+            return Result<AuthToken>.Success(authToken);
         }
     }
 }
