@@ -3,6 +3,7 @@ using Prisma.Infrastructure.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddServices();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
