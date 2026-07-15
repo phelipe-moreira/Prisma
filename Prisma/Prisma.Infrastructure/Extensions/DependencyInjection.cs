@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Prisma.Application.Interfaces;
+using Prisma.Application.Services;
 using Prisma.Domain.Interfaces;
 using Prisma.Domain.Interfaces.Security;
 using Prisma.Infrastructure.Auth;
@@ -36,6 +38,8 @@ namespace Prisma.Infrastructure.Extensions
             services.AddScoped<IJwtTokenService, JwtTokenService>();
 
             services.AddScoped<IPasswordHasher, PasswordHasher>();
+
+            services.AddScoped<IAuthService, AuthService>();
 
             services.AddJwtAuthentication(configuration);
 
