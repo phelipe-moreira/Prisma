@@ -1,4 +1,5 @@
 ﻿using Prisma.Domain.Interfaces;
+using Prisma.Domain.Models;
 
 namespace Prisma.Domain.Abstractions;
 
@@ -6,9 +7,5 @@ public interface IUnitOfWork
 {
     IUserRepository UserRepository { get; }
 
-    Task CommitAsync(CancellationToken cancellationToken = default);
-
-    Task BeginTransactionAsync(CancellationToken cancellationToken = default);
-
-    Task RollbackAsync(CancellationToken cancellationToken = default);
+    Task<Result<T>> ExecuteTransactionAsync<T>(Func<CancellationToken, Task<Result<T>>> action, CancellationToken cancellationToken = default);
 }

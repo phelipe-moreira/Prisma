@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Prisma.Api.Responses;
-using Prisma.Application.Results;
+using Prisma.Domain.Models;
 
 namespace Prisma.Api.Extensions;
 

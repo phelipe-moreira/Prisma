@@ -1,7 +1,7 @@
 ﻿using Prisma.Application.DTOs.Auth;
 using Prisma.Application.Errors;
 using Prisma.Application.Interfaces;
-using Prisma.Application.Results;
+using Prisma.Domain.Models;
 using Prisma.Domain.Abstractions;
 using Prisma.Domain.Entities;
 using Prisma.Domain.Interfaces;

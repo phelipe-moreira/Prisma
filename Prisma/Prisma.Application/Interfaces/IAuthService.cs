@@ -1,5 +1,5 @@
 ﻿using Prisma.Application.DTOs.Auth;
-using Prisma.Application.Results;
+using Prisma.Domain.Models;
 
 namespace Prisma.Application.Interfaces
 {

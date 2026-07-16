@@ -1,4 +1,4 @@
-﻿namespace Prisma.Application.Results;
+﻿namespace Prisma.Domain.Models;
 
 public enum ErrorType
 {

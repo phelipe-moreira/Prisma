@@ -1,4 +1,4 @@
-﻿using Prisma.Application.Results;
+﻿using Prisma.Domain.Models;
 
 namespace Prisma.Application.Errors
 {
