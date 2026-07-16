@@ -45,6 +45,8 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<ICauseRepository, CauseRepository>();
+        services.AddScoped<ICauseService, CauseService>();
 
         return services;
     }
