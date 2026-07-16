@@ -1,8 +1,7 @@
 using FluentAssertions;
-using Prisma.Application.Results;
 using Prisma.Domain.Models;
 
-namespace Prisma.Tests.Application.Results;
+namespace Prisma.Tests.Domain.Models;
 
 public class ErrorTests
 {
