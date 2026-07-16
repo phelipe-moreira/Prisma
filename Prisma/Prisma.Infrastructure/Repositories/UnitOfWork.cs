@@ -10,6 +10,8 @@ public class UnitOfWork(AppDbContext context) : IUnitOfWork
 {
     public IUserRepository UserRepository => field ??= new UserRepository(context);
 
+    public ICauseRepository CauseRepository => field ??= new CauseRepository(context);
+
     public async Task<Result<T>> ExecuteTransactionAsync<T>(Func<CancellationToken, Task<Result<T>>> action, CancellationToken cancellationToken = default)
     {
         await using var transaction =
