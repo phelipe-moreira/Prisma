@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Prisma.Domain.Abstractions;
 using Prisma.Domain.Entities;
-using Prisma.Domain.Interfaces.Security;
 using Prisma.Domain.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
