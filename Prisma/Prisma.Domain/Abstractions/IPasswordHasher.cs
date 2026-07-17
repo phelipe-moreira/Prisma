@@ -1,4 +1,4 @@
-﻿namespace Prisma.Domain.Interfaces
+﻿namespace Prisma.Domain.Abstractions
 {
     public interface IPasswordHasher
     {
