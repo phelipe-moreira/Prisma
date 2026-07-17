@@ -21,6 +21,12 @@ public class UnitOfWork(AppDbContext context) : IUnitOfWork
         {
             var result = await action(cancellationToken);
 
+            if (result.IsFailure)
+            {
+                await transaction.RollbackAsync(cancellationToken); 
+                return result;
+            }
+
             await context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 
