@@ -8,7 +8,7 @@ public class Comment
 
     public Guid UserId { get; set; }
 
-    public Guid ParentCommentId { get; set; }
+    public Guid? ParentCommentId { get; set; }
 
     public required string Content { get; set; }
 
@@ -26,4 +26,34 @@ public class Comment
     public Comment? ParentComment { get; set; }
 
     public ICollection<Comment> Replies { get; set; } = [];
+
+    private Comment()
+    {
+    }
+
+    public static Comment Create(Guid postId, Guid userId, Guid? parentCommentId, string content)
+    {
+        return new()
+        {
+            Id = Guid.NewGuid(),
+            PostId = postId,
+            UserId = userId,
+            ParentCommentId = parentCommentId,
+            Content = content,
+            UpdatedAt = DateTime.UtcNow,
+            CreatedAt = DateTime.UtcNow
+        };
+    }
+
+    public void Remove()
+    {
+        IsRemoved = true;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void UpdateComment(string content)
+    {
+        Content = content;
+        UpdatedAt = DateTime.UtcNow;
+    }
 }
