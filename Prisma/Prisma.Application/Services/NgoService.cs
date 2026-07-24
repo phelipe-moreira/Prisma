@@ -30,7 +30,7 @@ namespace Prisma.Application.Services
             );
 
             return await unitOfWork.ExecuteTransactionAsync(
-                async cancellationToken =>
+                async () =>
                 {
                     await unitOfWork.NgoRepository.AddAsync(ngo, cancellationToken);
 
@@ -49,7 +49,7 @@ namespace Prisma.Application.Services
             ngo.Deactivate();
 
             return await unitOfWork.ExecuteTransactionAsync(
-                async cancellationToken =>
+                async () =>
                 {
                     await unitOfWork.NgoRepository.UpdateAsync(ngo, cancellationToken);
 
@@ -97,7 +97,7 @@ namespace Prisma.Application.Services
             );
 
             return await unitOfWork.ExecuteTransactionAsync(
-                async cancellationToken =>
+                async () =>
                 {
                     await unitOfWork.NgoRepository.UpdateAsync(ngo, cancellationToken);
 
