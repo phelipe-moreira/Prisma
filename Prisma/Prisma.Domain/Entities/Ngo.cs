@@ -38,4 +38,68 @@ public class Ngo
     public ICollection<UserNgo> UserNgos { get; set; } = [];
 
     public ICollection<UserNgoFollow> UserNgoFollows { get; set; } = [];
+
+    private Ngo()
+    {
+    }
+
+    public static Ngo Create(
+        string name,
+        string cnpj,
+        string? description,
+        string? profilePictureUrl,
+        string? coverPictureUrl,
+        string? websiteUrl,
+        string? instagramUrl,
+        string? contactEmail,
+        string? city,
+        string? state)
+    {
+        return new Ngo
+        {
+            Id = Guid.NewGuid(),
+            Name = name,
+            Cnpj = cnpj,
+            Description = description,
+            ProfilePictureUrl = profilePictureUrl,
+            CoverPictureUrl = coverPictureUrl,
+            WebsiteUrl = websiteUrl,
+            InstagramUrl = instagramUrl,
+            ContactEmail = contactEmail,
+            City = city,
+            State = state,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            IsActive = true
+        };
+    }
+
+    public void Update(
+        string name,
+        string? description,
+        string? profilePictureUrl,
+        string? coverPictureUrl,
+        string? websiteUrl,
+        string? instagramUrl,
+        string? contactEmail,
+        string? city,
+        string? state)
+    {
+        Name = name;
+        Description = description;
+        ProfilePictureUrl = profilePictureUrl;
+        CoverPictureUrl = coverPictureUrl;
+        WebsiteUrl = websiteUrl;
+        InstagramUrl = instagramUrl;
+        ContactEmail = contactEmail;
+        City = city;
+        State = state;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void Deactivate()
+    {
+        IsActive = false;
+        UpdatedAt = DateTime.UtcNow;
+    }
 }
