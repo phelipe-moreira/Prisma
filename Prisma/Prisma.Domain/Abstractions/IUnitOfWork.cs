@@ -7,6 +7,6 @@ public interface IUnitOfWork
 {
     IUserRepository UserRepository { get; }
     ICauseRepository CauseRepository { get; }
-
+    INgoRepository NgoRepository { get; }
     Task<Result<T>> ExecuteTransactionAsync<T>(Func<CancellationToken, Task<Result<T>>> action, CancellationToken cancellationToken = default);
 }

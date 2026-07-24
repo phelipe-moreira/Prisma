@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Storage;
-using Prisma.Domain.Abstractions;
+﻿using Prisma.Domain.Abstractions;
 using Prisma.Domain.Interfaces;
 using Prisma.Domain.Models;
 using Prisma.Infrastructure.Context;
@@ -9,8 +8,8 @@ namespace Prisma.Infrastructure.Repositories;
 public class UnitOfWork(AppDbContext context) : IUnitOfWork
 {
     public IUserRepository UserRepository => field ??= new UserRepository(context);
-
     public ICauseRepository CauseRepository => field ??= new CauseRepository(context);
+    public INgoRepository NgoRepository => field ??= new NgoRepository(context);
 
     public async Task<Result<T>> ExecuteTransactionAsync<T>(Func<CancellationToken, Task<Result<T>>> action, CancellationToken cancellationToken = default)
     {
@@ -21,11 +20,11 @@ public class UnitOfWork(AppDbContext context) : IUnitOfWork
         {
             var result = await action(cancellationToken);
 
-            if (result.IsFailure)
+            /*if (result.IsFailure)
             {
                 await transaction.RollbackAsync(cancellationToken); 
                 return result;
-            }
+            }*/
 
             await context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
