@@ -4,8 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Prisma.Application.Interfaces;
 using Prisma.Application.Services;
 using Prisma.Domain.Abstractions;
-using Prisma.Domain.Interfaces;
-using Prisma.Domain.Interfaces.Security;
 using Prisma.Infrastructure.Auth;
 using Prisma.Infrastructure.Context;
 using Prisma.Infrastructure.Repositories;
@@ -47,6 +45,8 @@ public static class DependencyInjection
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ICauseRepository, CauseRepository>();
         services.AddScoped<ICauseService, CauseService>();
+        services.AddScoped<ICommentRepository, CommentRepository>();
+        services.AddScoped<ICommentService, CommentService>();
         services.AddScoped<INgoRepository, NgoRepository>();
         services.AddScoped<INgoService, NgoService>();
 

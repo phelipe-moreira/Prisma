@@ -2,7 +2,9 @@
 
 public class Result<T>
 {
-    public bool IsSuccess { get; }    
+    public bool IsSuccess { get; }
+    
+    public bool IsFailure => !IsSuccess;
 
     public T? Value { get; }
 

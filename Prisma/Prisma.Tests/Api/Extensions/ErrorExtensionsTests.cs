@@ -1,7 +1,6 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Prisma.Api.Extensions;
-using Prisma.Application.Results;
 using Prisma.Domain.Models;
 
 namespace Prisma.Tests.Api.Extensions;

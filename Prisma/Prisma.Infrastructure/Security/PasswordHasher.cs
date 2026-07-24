@@ -1,5 +1,5 @@
-﻿using Prisma.Domain.Interfaces;
-using BCrypt.Net;
+﻿using BCrypt.Net;
+using Prisma.Domain.Abstractions;
 
 namespace Prisma.Infrastructure.Security
 {

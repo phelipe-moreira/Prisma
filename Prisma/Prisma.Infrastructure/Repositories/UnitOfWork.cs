@@ -1,5 +1,5 @@
-﻿using Prisma.Domain.Abstractions;
-using Prisma.Domain.Interfaces;
+﻿using Prisma.Application.Errors;
+using Prisma.Domain.Abstractions;
 using Prisma.Domain.Models;
 using Prisma.Infrastructure.Context;
 
@@ -11,20 +11,22 @@ public class UnitOfWork(AppDbContext context) : IUnitOfWork
     public ICauseRepository CauseRepository => field ??= new CauseRepository(context);
     public INgoRepository NgoRepository => field ??= new NgoRepository(context);
 
-    public async Task<Result<T>> ExecuteTransactionAsync<T>(Func<CancellationToken, Task<Result<T>>> action, CancellationToken cancellationToken = default)
+    public ICommentRepository CommentRepository => field ??= new CommentRepository(context);
+
+    public async Task<Result<T>> ExecuteTransactionAsync<T>(Func<Task<Result<T>>> action, CancellationToken cancellationToken = default)
     {
         await using var transaction =
             await context.Database.BeginTransactionAsync(cancellationToken);
 
         try
         {
-            var result = await action(cancellationToken);
+            var result = await action();
 
-            /*if (result.IsFailure)
+            if (result.IsFailure)
             {
-                await transaction.RollbackAsync(cancellationToken); 
+                await transaction.RollbackAsync(cancellationToken);
                 return result;
-            }*/
+            }
 
             await context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
@@ -34,7 +36,8 @@ public class UnitOfWork(AppDbContext context) : IUnitOfWork
         catch
         {
             await transaction.RollbackAsync(cancellationToken);
-            throw;
+            return Result<T>.Failure(TransactionErrors.Failed);
         }
     }
 }
+

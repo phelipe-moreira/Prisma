@@ -2,7 +2,7 @@
 using Prisma.Domain.Models;
 using System.Security.Claims;
 
-namespace Prisma.Domain.Interfaces.Security
+namespace Prisma.Domain.Abstractions
 {
     public interface IJwtTokenService
     {

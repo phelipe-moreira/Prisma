@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Prisma.Api.Extensions;
 using Prisma.Api.Responses;
-using Prisma.Application.Results;
 using Prisma.Domain.Models;
 
 namespace Prisma.Tests.Api.Extensions;
