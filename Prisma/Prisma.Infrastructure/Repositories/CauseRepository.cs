@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Prisma.Domain.Abstractions;
 using Prisma.Domain.Entities;
-using Prisma.Domain.Interfaces;
 using Prisma.Infrastructure.Context;
 
 namespace Prisma.Infrastructure.Repositories

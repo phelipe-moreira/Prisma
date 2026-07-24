@@ -4,8 +4,6 @@ using Prisma.Application.Interfaces;
 using Prisma.Domain.Models;
 using Prisma.Domain.Abstractions;
 using Prisma.Domain.Entities;
-using Prisma.Domain.Interfaces;
-using Prisma.Domain.Interfaces.Security;
 
 namespace Prisma.Application.Services;
 

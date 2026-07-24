@@ -17,11 +17,11 @@ namespace Prisma.Application.Services
                 return Result<CauseResponse>.Failure(CauseErrors.AlreadyExists);
 
             return await unitOfWork.ExecuteTransactionAsync(
-                async ct =>
+                async () =>
                 {
                     var cause = Cause.Create(request.Name,request.Description);
 
-                    await unitOfWork.CauseRepository.AddAsync(cause, ct);
+                    await unitOfWork.CauseRepository.AddAsync(cause, cancellationToken);
 
                     return Result<CauseResponse>.Success(MapToResponse(cause));
                 },
@@ -36,9 +36,9 @@ namespace Prisma.Application.Services
                 return;
 
             await unitOfWork.ExecuteTransactionAsync(
-                async ct =>
+                async () =>
                 {
-                    await unitOfWork.CauseRepository.DeleteAsync(cause, ct);
+                    await unitOfWork.CauseRepository.DeleteAsync(cause, cancellationToken);
 
                     return Result<bool>.Success(true);
                 },
@@ -72,11 +72,11 @@ namespace Prisma.Application.Services
                 return Result<CauseResponse>.Failure(CauseErrors.NotFound);
 
             return await unitOfWork.ExecuteTransactionAsync(
-                async ct =>
+                async () =>
                 {
                     cause.Update(request.Name,request.Description);
 
-                    await unitOfWork.CauseRepository.UpdateAsync(cause, ct);
+                    await unitOfWork.CauseRepository.UpdateAsync(cause, cancellationToken);
 
                     return Result<CauseResponse>.Success(MapToResponse(cause));
                 },

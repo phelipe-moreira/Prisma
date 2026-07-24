@@ -1,6 +1,6 @@
 ﻿using Prisma.Domain.Entities;
 
-namespace Prisma.Domain.Interfaces
+namespace Prisma.Domain.Abstractions
 {
     public interface IRefreshTokenRepository
     {
