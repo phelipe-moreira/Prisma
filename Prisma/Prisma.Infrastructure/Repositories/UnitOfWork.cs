@@ -13,6 +13,10 @@ public class UnitOfWork(AppDbContext context) : IUnitOfWork
 
     public ICommentRepository CommentRepository => field ??= new CommentRepository(context);
 
+    //public INgoCauseRepository NgoCauseRepository => field ??= new NgoCauseRepository(context);
+
+    public IUserNgoRepository UserNgoRepository => field ??= new UserNgoRepository(context);
+
     public async Task<Result<T>> ExecuteTransactionAsync<T>(Func<Task<Result<T>>> action, CancellationToken cancellationToken = default)
     {
         await using var transaction =
