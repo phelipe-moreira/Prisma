@@ -12,4 +12,18 @@ public class UserNgoFollow
     public User User { get; set; } = null!;
 
     public Ngo Ngo { get; set; } = null!;
+
+    private UserNgoFollow()
+    {
+    }
+
+    public static UserNgoFollow Create(Guid userId, Guid ngoId)
+    {
+        return new UserNgoFollow
+        {
+            UserId = userId,
+            NgoId = ngoId,
+            FollowedAt = DateTime.UtcNow
+        };
+    }
 }
