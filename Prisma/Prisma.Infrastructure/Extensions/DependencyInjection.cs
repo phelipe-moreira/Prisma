@@ -51,6 +51,8 @@ public static class DependencyInjection
         services.AddScoped<INgoService, NgoService>();
         services.AddScoped<IUserNgoRepository, UserNgoRepository>();
         services.AddScoped<IUserNgoService, UserNgoService>();
+        services.AddScoped<IUserNgoFollowService, UserNgoFollowService>();
+        services.AddScoped<IUserNgoFollowRepository, UserNgoFollowRepository>();
 
         return services;
     }
