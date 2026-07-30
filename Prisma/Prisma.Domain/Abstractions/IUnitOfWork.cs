@@ -14,6 +14,8 @@ public interface IUnitOfWork
 
     IUserNgoRepository UserNgoRepository { get; }
 
+    IUserNgoFollowRepository UserNgoFollowRepository { get; }
+
     Task<Result<T>> ExecuteTransactionAsync<T>(Func<Task<Result<T>>> action, CancellationToken cancellationToken = default);
 
     //Task<Result<T>> ExecuteTransactionAsync<T>(Func<CancellationToken, Task<Result<T>>> action, CancellationToken cancellationToken = default);

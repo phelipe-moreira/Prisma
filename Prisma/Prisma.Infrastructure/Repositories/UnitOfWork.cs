@@ -17,6 +17,8 @@ public class UnitOfWork(AppDbContext context) : IUnitOfWork
 
     public IUserNgoRepository UserNgoRepository => field ??= new UserNgoRepository(context);
 
+    public IUserNgoFollowRepository UserNgoFollowRepository => field ??= new UserNgoFollowRepository(context);
+
     public async Task<Result<T>> ExecuteTransactionAsync<T>(Func<Task<Result<T>>> action, CancellationToken cancellationToken = default)
     {
         await using var transaction =
