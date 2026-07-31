@@ -47,6 +47,8 @@ public static class DependencyInjection
         services.AddScoped<ICauseService, CauseService>();
         services.AddScoped<ICommentRepository, CommentRepository>();
         services.AddScoped<ICommentService, CommentService>();
+        services.AddScoped<INgoRepository, NgoRepository>();
+        services.AddScoped<INgoService, NgoService>();
 
         return services;
     }
