@@ -1,4 +1,6 @@
-﻿namespace Prisma.Application.DTOs.Ngo
+﻿using Prisma.Application.DTOs.Cause;
+
+namespace Prisma.Application.DTOs.Ngo
 {
     public class NgoResponse
     {
@@ -16,5 +18,6 @@
         public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public List<CauseResponse> Causes { get; set; } = [];
     }
 }
