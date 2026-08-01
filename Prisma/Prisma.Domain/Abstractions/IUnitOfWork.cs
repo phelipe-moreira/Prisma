@@ -12,7 +12,6 @@ public interface IUnitOfWork
 
     INgoRepository NgoRepository { get; }
 
-    INgoCauseRepository NgoCauseRepository { get; }
     Task<Result<T>> ExecuteTransactionAsync<T>(Func<Task<Result<T>>> action, CancellationToken cancellationToken = default);
 }
 
