@@ -36,12 +36,16 @@ namespace Prisma.Infrastructure.Repositories
         {
             return await _context.Ngo
                 .AsNoTracking()
+                .Include(x => x.NgoCauses)
+                .ThenInclude(x => x.Cause)
                 .ToListAsync(cancellationToken);
         }
 
         public async Task<Ngo?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await _context.Ngo
+                .Include(x => x.NgoCauses)
+                .ThenInclude(x => x.Cause)
                 .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
         }
 

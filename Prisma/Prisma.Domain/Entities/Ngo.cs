@@ -102,4 +102,37 @@ public class Ngo
         IsActive = false;
         UpdatedAt = DateTime.UtcNow;
     }
+
+    public void AddCause(Guid causeId)
+    {
+        if (NgoCauses.Any(x => x.CauseId == causeId))
+            return;
+
+        NgoCauses.Add(NgoCause.Create(Id, causeId));
+    }
+
+    public void RemoveCause(Guid causeId)
+    {
+        var ngoCause = NgoCauses.FirstOrDefault(x => x.CauseId == causeId);
+
+        if (ngoCause is null)
+            return;
+
+        NgoCauses.Remove(ngoCause);
+    }
+
+    public void UpdateCauses(IEnumerable<Guid> causeIds)
+    {
+        var currentIds = NgoCauses.Select(x => x.CauseId).ToList();
+
+        var causesToRemove = currentIds.Except(causeIds);
+
+        foreach (var id in causesToRemove)
+            RemoveCause(id);
+
+        var causesToAdd = causeIds.Except(currentIds);
+
+        foreach (var id in causesToAdd)
+            AddCause(id);
+    }
 }

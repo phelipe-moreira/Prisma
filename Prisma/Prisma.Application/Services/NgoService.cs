@@ -1,4 +1,5 @@
-﻿using Prisma.Application.DTOs.Ngo;
+﻿using Prisma.Application.DTOs.Cause;
+using Prisma.Application.DTOs.Ngo;
 using Prisma.Application.Errors;
 using Prisma.Application.Interfaces;
 using Prisma.Domain.Abstractions;
@@ -29,6 +30,16 @@ namespace Prisma.Application.Services
                 request.State
             );
 
+            foreach (var causeId in request.CauseIds)
+            {
+                var cause = await unitOfWork.CauseRepository.GetByIdAsync(causeId, cancellationToken);
+
+                if (cause is null)
+                    return Result<NgoResponse>.Failure(NgoErrors.CauseNotFound);
+
+                ngo.AddCause(causeId);
+            }
+
             return await unitOfWork.ExecuteTransactionAsync(
                 async () =>
                 {
@@ -51,7 +62,7 @@ namespace Prisma.Application.Services
             return await unitOfWork.ExecuteTransactionAsync(
                 async () =>
                 {
-                    await unitOfWork.NgoRepository.UpdateAsync(ngo, cancellationToken);
+                    await unitOfWork.NgoRepository.DeleteAsync(ngo, cancellationToken);
 
                     return Result<bool>.Success(true);
                 },
@@ -96,6 +107,8 @@ namespace Prisma.Application.Services
                 request.State
             );
 
+            ngo.UpdateCauses(request.CauseIds);
+
             return await unitOfWork.ExecuteTransactionAsync(
                 async () =>
                 {
@@ -123,7 +136,14 @@ namespace Prisma.Application.Services
                 State = ngo.State,
                 IsActive = ngo.IsActive,
                 CreatedAt = ngo.CreatedAt,
-                UpdatedAt = ngo.UpdatedAt
+                UpdatedAt = ngo.UpdatedAt,
+
+                Causes = ngo.NgoCauses.Select(x => new CauseResponse
+                {
+                    Id = x.Cause.Id,
+                    Name = x.Cause.Name,
+                    Description = x.Cause.Description
+                }).ToList()
             };
         }
     }
