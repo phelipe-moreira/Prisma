@@ -11,5 +11,6 @@
         public string? ContactEmail { get; set; }
         public string? City { get; set; }
         public string? State { get; set; }
+        public List<Guid> CauseIds { get; set; } = [];
     }
 }
