@@ -62,7 +62,7 @@ namespace Prisma.Application.Services
             return await unitOfWork.ExecuteTransactionAsync(
                 async () =>
                 {
-                    await unitOfWork.NgoRepository.UpdateAsync(ngo, cancellationToken);
+                    await unitOfWork.NgoRepository.DeleteAsync(ngo, cancellationToken);
 
                     return Result<bool>.Success(true);
                 },
