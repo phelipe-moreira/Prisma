@@ -13,7 +13,6 @@ public class AuthService(
     IPasswordHasher passwordHasher,
     IJwtTokenService jwtTokenService) : IAuthService
 {
-
     public async Task<Result<AuthToken>> LoginAsync(LoginRequest request, CancellationToken cancellationToken)
     {
         var user = await unitOfWork.UserRepository.GetByEmailAsync(request.Email, cancellationToken);

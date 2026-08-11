@@ -5,84 +5,83 @@ using Prisma.Domain.Abstractions;
 using Prisma.Domain.Entities;
 using Prisma.Domain.Models;
 
-namespace Prisma.Application.Services
+namespace Prisma.Application.Services;
+
+public class UserNgoFollowService(IUnitOfWork unitOfWork) : IUserNgoFollowService
 {
-    public class UserNgoFollowService(IUnitOfWork unitOfWork) : IUserNgoFollowService
+    public async Task<Result<UserNgoFollowResponse>> CreateAsync(CreateUserNgoFollowRequest request, CancellationToken cancellationToken)
     {
-        public async Task<Result<UserNgoFollowResponse>> CreateAsync(CreateUserNgoFollowRequest request, CancellationToken cancellationToken)
-        {
-            var user = await unitOfWork.UserRepository.GetByIdAsync(request.UserId, cancellationToken);
+        var user = await unitOfWork.UserRepository.GetByIdAsync(request.UserId, cancellationToken);
 
-            if(user is null)
-                return Result<UserNgoFollowResponse>.Failure(UserNgoFollowErrors.UserNotFound);
+        if(user is null)
+            return Result<UserNgoFollowResponse>.Failure(UserNgoFollowErrors.UserNotFound);
 
-            var ngo = await unitOfWork.NgoRepository.GetByIdAsync(request.NgoId, cancellationToken);
+        var ngo = await unitOfWork.NgoRepository.GetByIdAsync(request.NgoId, cancellationToken);
 
-            if(ngo is null)
-                return Result<UserNgoFollowResponse>.Failure(UserNgoFollowErrors.NgoNotFound);
+        if(ngo is null)
+            return Result<UserNgoFollowResponse>.Failure(UserNgoFollowErrors.NgoNotFound);
 
-            var exists = await unitOfWork.UserNgoFollowRepository.ExistsAsync(request.UserId, request.NgoId, cancellationToken);
+        var exists = await unitOfWork.UserNgoFollowRepository.ExistsAsync(request.UserId, request.NgoId, cancellationToken);
 
-            if(exists)
-                return Result<UserNgoFollowResponse>.Failure(UserNgoFollowErrors.AlreadyExists);
+        if(exists)
+            return Result<UserNgoFollowResponse>.Failure(UserNgoFollowErrors.AlreadyExists);
 
-            return await unitOfWork.ExecuteTransactionAsync(
-                async () =>
-                {
-                    var userNgoFollow = UserNgoFollow.Create(request.UserId, request.NgoId);
-
-                    await unitOfWork.UserNgoFollowRepository.AddAsync(userNgoFollow, cancellationToken);
-
-                    return Result<UserNgoFollowResponse>.Success(MapToResponse(userNgoFollow, user.Name, ngo.Name));
-
-                }, cancellationToken);
-        }
-
-        public async Task<Result<bool>> DeleteAsync(Guid userId, Guid ngoId, CancellationToken cancellationToken)
-        {
-            var follow = await unitOfWork.UserNgoFollowRepository.GetAsync(userId, ngoId, cancellationToken);
-
-            if(follow is null)
-                return Result<bool>.Failure(UserNgoFollowErrors.NotFound);
-
-            return await unitOfWork.ExecuteTransactionAsync(
-                async () =>
-                {
-                    await unitOfWork.UserNgoFollowRepository.DeleteAsync(follow, cancellationToken);
-
-                    return Result<bool>.Success(true);
-
-                }, cancellationToken);
-        }
-
-        public async Task<Result<IEnumerable<UserNgoFollowResponse>>> GetByNgoIdAsync(Guid ngoId, CancellationToken cancellationToken)
-        {
-            var follows = await unitOfWork.UserNgoFollowRepository.GetByNgoIdAsync(ngoId, cancellationToken);
-
-            var response = follows.Select(x => MapToResponse(x, x.User.Name, x.Ngo.Name));
-
-            return Result<IEnumerable<UserNgoFollowResponse>>.Success(response);
-        }
-
-        public async Task<Result<IEnumerable<UserNgoFollowResponse>>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken)
-        {
-            var follows = await unitOfWork.UserNgoFollowRepository.GetByUserIdAsync(userId, cancellationToken);
-
-            var response = follows.Select(x => MapToResponse(x, x.User.Name, x.Ngo.Name));
-
-            return Result<IEnumerable<UserNgoFollowResponse>>.Success(response);
-        }
-
-        private static UserNgoFollowResponse MapToResponse(UserNgoFollow userNgoFollow, string userName, string ngoName)
-        {
-            return new UserNgoFollowResponse
+        return await unitOfWork.ExecuteTransactionAsync(
+            async () =>
             {
-                UserId = userNgoFollow.UserId,
-                UserName = userName,
-                NgoId = userNgoFollow.NgoId,
-                NgoName = ngoName,
-                FollowedAt = userNgoFollow.FollowedAt
-            };
-        }
+                var userNgoFollow = UserNgoFollow.Create(request.UserId, request.NgoId);
+
+                await unitOfWork.UserNgoFollowRepository.AddAsync(userNgoFollow, cancellationToken);
+
+                return Result<UserNgoFollowResponse>.Success(MapToResponse(userNgoFollow, user.Name, ngo.Name));
+
+            }, cancellationToken);
+    }
+
+    public async Task<Result<bool>> DeleteAsync(Guid userId, Guid ngoId, CancellationToken cancellationToken)
+    {
+        var follow = await unitOfWork.UserNgoFollowRepository.GetAsync(userId, ngoId, cancellationToken);
+
+        if(follow is null)
+            return Result<bool>.Failure(UserNgoFollowErrors.NotFound);
+
+        return await unitOfWork.ExecuteTransactionAsync(
+            async () =>
+            {
+                await unitOfWork.UserNgoFollowRepository.DeleteAsync(follow, cancellationToken);
+
+                return Result<bool>.Success(true);
+
+            }, cancellationToken);
+    }
+
+    public async Task<Result<IEnumerable<UserNgoFollowResponse>>> GetByNgoIdAsync(Guid ngoId, CancellationToken cancellationToken)
+    {
+        var follows = await unitOfWork.UserNgoFollowRepository.GetByNgoIdAsync(ngoId, cancellationToken);
+
+        var response = follows.Select(x => MapToResponse(x, x.User.Name, x.Ngo.Name));
+
+        return Result<IEnumerable<UserNgoFollowResponse>>.Success(response);
+    }
+
+    public async Task<Result<IEnumerable<UserNgoFollowResponse>>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var follows = await unitOfWork.UserNgoFollowRepository.GetByUserIdAsync(userId, cancellationToken);
+
+        var response = follows.Select(x => MapToResponse(x, x.User.Name, x.Ngo.Name));
+
+        return Result<IEnumerable<UserNgoFollowResponse>>.Success(response);
+    }
+
+    private static UserNgoFollowResponse MapToResponse(UserNgoFollow userNgoFollow, string userName, string ngoName)
+    {
+        return new UserNgoFollowResponse
+        {
+            UserId = userNgoFollow.UserId,
+            UserName = userName,
+            NgoId = userNgoFollow.NgoId,
+            NgoName = ngoName,
+            FollowedAt = userNgoFollow.FollowedAt
+        };
     }
 }
