@@ -18,7 +18,7 @@ public class UserNgoConfiguration : IEntityTypeConfiguration<UserNgo>
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(x => x.Ngo)
-            .WithMany(x => x.UserNgos)
+            .WithMany(x => x.Members)
             .HasForeignKey(x => x.NgoId)
             .OnDelete(DeleteBehavior.Cascade);
     }
