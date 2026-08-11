@@ -1,4 +1,6 @@
-﻿namespace Prisma.Domain.Entities;
+﻿using Prisma.Domain.Enums;
+
+namespace Prisma.Domain.Entities;
 
 public class Ngo
 {
@@ -35,9 +37,9 @@ public class Ngo
 
     public ICollection<NgoCause> NgoCauses { get; set; } = [];
 
-    public ICollection<UserNgo> UserNgos { get; set; } = [];
+    public ICollection<UserNgo> Members { get; set; } = [];
 
-    public ICollection<UserNgoFollow> UserNgoFollows { get; set; } = [];
+    public ICollection<UserNgoFollow> Followers { get; set; } = [];
 
     private Ngo()
     {
@@ -134,5 +136,32 @@ public class Ngo
 
         foreach (var id in causesToAdd)
             AddCause(id);
+    }
+
+    public void AddMember(Guid memberId, UserNgoRole userRole)
+    {
+        if (Members.Any(x => x.UserId == memberId))
+            return;
+
+        Members.Add(UserNgo.Create(memberId, Id, userRole));
+    }
+
+    public void RemoveMember(Guid memberId)
+    {
+        var userNgo = Members.FirstOrDefault(x => x.UserId == memberId);
+
+        if (userNgo is null)
+            return;
+
+        Members.Remove(userNgo);
+    }
+
+    public void UpdateMembers(Dictionary<Guid, UserNgoRole> members)
+    {
+        foreach ((var memberId, var memberRole) in members)
+        {
+            RemoveMember(memberId);
+            AddMember(memberId, memberRole);
+        }
     }
 }
