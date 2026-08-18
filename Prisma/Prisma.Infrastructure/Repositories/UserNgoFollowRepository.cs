@@ -41,6 +41,7 @@ namespace Prisma.Infrastructure.Repositories
             return await context.UserNgoFollows
                 .AsNoTracking()
                 .Include(x => x.User)
+                .Include(x => x.Ngo)
                 .Where(x => x.NgoId == ngoId)
                 .ToListAsync(cancellationToken);
         }
@@ -50,6 +51,7 @@ namespace Prisma.Infrastructure.Repositories
             return await context.UserNgoFollows
                 .AsNoTracking()
                 .Include(x => x.Ngo)
+                .Include(x => x.User)
                 .Where(x => x.UserId == userId)
                 .ToListAsync(cancellationToken);
         }
