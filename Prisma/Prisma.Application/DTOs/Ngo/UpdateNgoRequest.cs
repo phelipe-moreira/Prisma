@@ -1,4 +1,6 @@
-﻿namespace Prisma.Application.DTOs.Ngo
+﻿using Prisma.Domain.Enums;
+
+namespace Prisma.Application.DTOs.Ngo
 {
     public class UpdateNgoRequest
     {
@@ -12,5 +14,6 @@
         public string? City { get; set; }
         public string? State { get; set; }
         public List<Guid> CauseIds { get; set; } = [];
+        public Dictionary<Guid, UserNgoRole> Members { get; set; } = [];
     }
 }

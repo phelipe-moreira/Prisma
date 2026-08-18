@@ -4,6 +4,7 @@ namespace Prisma.Domain.Abstractions
 {
     public interface IUserRepository
     {
+        Task<IEnumerable<User>> GetAllAsync(CancellationToken cancellationToken);
         Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
         Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken);
         Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken);

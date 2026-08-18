@@ -10,6 +10,5 @@ namespace Prisma.Domain.Abstractions
         Task AddAsync(Ngo ngo, CancellationToken cancellationToken = default);
         Task UpdateAsync(Ngo ngo, CancellationToken cancellationToken = default);
         Task DeleteAsync(Ngo ngo, CancellationToken cancellationToken = default);
-
     }
 }

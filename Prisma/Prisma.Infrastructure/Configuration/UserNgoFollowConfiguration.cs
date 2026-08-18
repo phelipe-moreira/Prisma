@@ -18,7 +18,7 @@ public class UserNgoFollowConfiguration : IEntityTypeConfiguration<UserNgoFollow
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(x => x.Ngo)
-            .WithMany(x => x.UserNgoFollows)
+            .WithMany(x => x.Followers)
             .HasForeignKey(x => x.NgoId)
             .OnDelete(DeleteBehavior.Cascade);
     }
