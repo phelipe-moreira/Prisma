@@ -2,8 +2,8 @@
 
 public enum MediaType
 {
-    Movie,
-    TvSeries,
-    Documentary,
-    Video
+    Image,
+    Document,
+    Link,
+    YoutubeVideo
 }
