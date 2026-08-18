@@ -23,6 +23,13 @@ public class UserRepository(AppDbContext context) : IUserRepository
             cancellationToken);
     }
 
+    public async Task<IEnumerable<User>> GetAllAsync(CancellationToken cancellationToken)
+    {
+        return await _context.Users
+            .AsNoTracking()
+            .ToListAsync(cancellationToken: cancellationToken);
+    }
+
     public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken)
     {
         return await _context.Users
