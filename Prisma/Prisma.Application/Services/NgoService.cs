@@ -41,6 +41,11 @@ public class NgoService(IUnitOfWork unitOfWork) : INgoService
             ngo.AddCause(causeId);
         }
 
+        var member = await unitOfWork.UserRepository.GetByIdAsync(request.UserId, cancellationToken);
+
+        if (member is null)
+            return Result<NgoResponse>.Failure(UserErrors.NotFound);
+
         ngo.AddMember(request.UserId, UserNgoRole.Admin);
 
         return await unitOfWork.ExecuteTransactionAsync(
@@ -110,7 +115,14 @@ public class NgoService(IUnitOfWork unitOfWork) : INgoService
             request.State
         );
 
+        if (!await VerifyIfCausesExists(request, cancellationToken))
+            return Result<NgoResponse>.Failure(NgoErrors.CauseNotFound);
+
         ngo.UpdateCauses(request.CauseIds);
+
+        if (!await VerifyIfMembersExists(request, cancellationToken))
+            return Result<NgoResponse>.Failure(UserErrors.SomeNotFound);
+
         ngo.UpdateMembers(request.Members);
 
         return await unitOfWork.ExecuteTransactionAsync(
@@ -121,6 +133,44 @@ public class NgoService(IUnitOfWork unitOfWork) : INgoService
                 return Result<NgoResponse>.Success(MapToResponse(ngo));
 
             }, cancellationToken);
+    }
+
+    private async Task<bool> VerifyIfCausesExists(UpdateNgoRequest request, CancellationToken cancellationToken)
+    {
+        var causes = await unitOfWork.CauseRepository
+            .GetAllAsync(cancellationToken);
+
+        var causesIds = causes
+            .Select(x => x.Id)
+            .ToList();
+
+        var missingIds = request.CauseIds
+            .Except(causesIds)
+            .ToList();
+
+        if (missingIds is { Count: > 0 })
+            return false;
+
+        return true;
+    }
+
+    private async Task<bool> VerifyIfMembersExists(UpdateNgoRequest request, CancellationToken cancellationToken)
+    {
+        var members = await unitOfWork.UserRepository
+            .GetAllAsync(cancellationToken);
+
+        var memberIds = members
+            .Select(x => x.Id)
+            .ToList();
+
+        var missingIds = request.CauseIds
+            .Except(memberIds)
+            .ToList();
+
+        if (missingIds is { Count: > 0 })
+            return false;
+
+        return true;
     }
 
     private static NgoResponse MapToResponse(Ngo ngo)
@@ -148,9 +198,9 @@ public class NgoService(IUnitOfWork unitOfWork) : INgoService
                 Description = x.Cause.Description
             })],
             Members = [.. ngo.Members.Select(x => new UserNgoResponse
-            {
+            {                
                 UserId = x.UserId,
-                Name = x.User.Name,
+                Name = x.User?.Name,
                 Role = x.Role
             })]
         };
