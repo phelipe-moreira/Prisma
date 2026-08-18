@@ -33,8 +33,6 @@ public class User
 
     public ICollection<UserNgoFollow> UserNgoFollows { get; set; } = [];
 
-    public ICollection<MediaList> MediaLists { get; set; } = [];
-
     public ICollection<Comment> Comments { get; set; } = [];
 
     public ICollection<RefreshToken> RefreshTokens { get; set; } = [];

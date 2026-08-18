@@ -21,10 +21,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<Comment> Comments { get; set; }
 
-    public DbSet<MediaList> MediaLists { get; set; }
-
-    public DbSet<MediaListItem> MediaListItems { get; set; }
-
     public DbSet<Post> Posts { get; set; }
 
     public DbSet<PostLike> PostLikes { get; set; }
