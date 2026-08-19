@@ -81,17 +81,22 @@ public class CommentService(IUnitOfWork unitOfWork) : ICommentService
         var comment = await unitOfWork.CommentRepository.GetByIdAsync(id, cancellationToken);
 
         if (comment is null)
-            return (Result<Guid>)Result.Failure(CommentErros.NotFound);
+            return Result<Guid>.Failure(CommentErros.NotFound);
 
         comment.Remove();
 
-        return (Result<Guid>)await unitOfWork.ExecuteTransactionAsync(
+        var transactionResult = await unitOfWork.ExecuteTransactionAsync(
             async () =>
             {
                 unitOfWork.CommentRepository.Update(comment);
 
                 return Result.Success();
             }, cancellationToken);
+
+        if (transactionResult.IsFailure)
+            return Result<Guid>.Failure(transactionResult.Errors);
+
+        return Result.Success(comment.Id);
     }
 
     public async Task<Result<Guid>> UpdateAsync(Guid id, UpdateCommentDto updateCommentDto, CancellationToken cancellationToken = default)
