@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Prisma.Api.Extensions;
 using Prisma.Application.DTOs.Comment;
 using Prisma.Application.Interfaces;
-using Prisma.Domain.Entities;
 
 namespace Prisma.Api.Controllers;
 
@@ -39,16 +39,20 @@ public class CommentController(ICommentService commentService) : ControllerBase
         return result.ToApiResult();
     }
 
+    [Authorize]
     [HttpPost]
     [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create([FromBody] CommentDto commentDto, CancellationToken cancellationToken)
     {
-        var result = await commentService.CreateAsync(commentDto, cancellationToken);
+        var userId = User.GetUserId();
+
+        var result = await commentService.CreateAsync(userId, commentDto, cancellationToken);
 
         return result.ToApiResult();
     }
 
+    [Authorize]
     [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -59,6 +63,7 @@ public class CommentController(ICommentService commentService) : ControllerBase
         return result.ToApiResult();
     }
 
+    [Authorize]
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]

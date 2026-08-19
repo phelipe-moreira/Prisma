@@ -10,9 +10,9 @@ namespace Prisma.Application.Services;
 
 public class UserNgoFollowService(IUnitOfWork unitOfWork) : IUserNgoFollowService
 {
-    public async Task<Result<UserNgoFollowResponse>> CreateAsync(CreateUserNgoFollowRequest request, CancellationToken cancellationToken)
+    public async Task<Result<UserNgoFollowResponse>> CreateAsync(Guid userId, CreateUserNgoFollowRequest request, CancellationToken cancellationToken)
     {
-        var user = await unitOfWork.UserRepository.GetByIdAsync(request.UserId, cancellationToken);
+        var user = await unitOfWork.UserRepository.GetByIdAsync(userId, cancellationToken);
 
         if(user is null)
             return Result<UserNgoFollowResponse>.Failure(UserNgoFollowErrors.UserNotFound);
@@ -22,12 +22,12 @@ public class UserNgoFollowService(IUnitOfWork unitOfWork) : IUserNgoFollowServic
         if(ngo is null)
             return Result<UserNgoFollowResponse>.Failure(UserNgoFollowErrors.NgoNotFound);
 
-        var exists = await unitOfWork.UserNgoFollowRepository.ExistsAsync(request.UserId, request.NgoId, cancellationToken);
+        var exists = await unitOfWork.UserNgoFollowRepository.ExistsAsync(userId, request.NgoId, cancellationToken);
 
         if(exists)
             return Result<UserNgoFollowResponse>.Failure(UserNgoFollowErrors.AlreadyExists);
 
-        var userNgoFollow = UserNgoFollow.Create(request.UserId, request.NgoId);
+        var userNgoFollow = UserNgoFollow.Create(userId, request.NgoId);
 
         var transactionResult = await unitOfWork.ExecuteTransactionAsync(
             async () =>

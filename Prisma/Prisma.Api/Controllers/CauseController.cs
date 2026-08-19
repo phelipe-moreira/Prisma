@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Prisma.Api.Extensions;
 using Prisma.Application.DTOs.Cause;
 using Prisma.Application.Interfaces;
@@ -32,6 +33,7 @@ namespace Prisma.Api.Controllers
             return result.ToApiResult();
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Create(CreateCauseRequest request, CancellationToken cancellationToken)
         {
@@ -40,6 +42,7 @@ namespace Prisma.Api.Controllers
             return result.ToApiResult();
         }
 
+        [Authorize]
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> Update(Guid id, UpdateCauseRequest request, CancellationToken cancellationToken)
         {
@@ -48,6 +51,7 @@ namespace Prisma.Api.Controllers
             return result.ToApiResult();
         }
 
+        [Authorize]
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
         {
