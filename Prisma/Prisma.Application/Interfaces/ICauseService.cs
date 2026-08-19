@@ -9,6 +9,6 @@ namespace Prisma.Application.Interfaces
         Task<Result<CauseResponse>> GetByIdAsync(Guid id, CancellationToken cancellationToken);
         Task<Result<CauseResponse>> CreateAsync(CreateCauseRequest request, CancellationToken cancellationToken);
         Task<Result<CauseResponse>> UpdateAsync(Guid id, UpdateCauseRequest request, CancellationToken cancellationToken);
-        Task DeleteAsync(Guid id, CancellationToken cancellationToken);
+        Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken);
     }
 }

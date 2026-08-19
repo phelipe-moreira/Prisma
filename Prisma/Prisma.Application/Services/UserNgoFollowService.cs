@@ -1,4 +1,5 @@
-﻿using Prisma.Application.DTOs.UserNgoFollow;
+﻿using Prisma.Application.DTOs.Ngo;
+using Prisma.Application.DTOs.UserNgoFollow;
 using Prisma.Application.Errors;
 using Prisma.Application.Interfaces;
 using Prisma.Domain.Abstractions;
@@ -26,31 +27,36 @@ public class UserNgoFollowService(IUnitOfWork unitOfWork) : IUserNgoFollowServic
         if(exists)
             return Result<UserNgoFollowResponse>.Failure(UserNgoFollowErrors.AlreadyExists);
 
-        return await unitOfWork.ExecuteTransactionAsync(
+        var userNgoFollow = UserNgoFollow.Create(request.UserId, request.NgoId);
+
+        var transactionResult = await unitOfWork.ExecuteTransactionAsync(
             async () =>
             {
-                var userNgoFollow = UserNgoFollow.Create(request.UserId, request.NgoId);
-
                 await unitOfWork.UserNgoFollowRepository.AddAsync(userNgoFollow, cancellationToken);
 
                 return Result<UserNgoFollowResponse>.Success(MapToResponse(userNgoFollow, user.Name, ngo.Name));
 
             }, cancellationToken);
+
+        if (transactionResult.IsFailure)
+            return Result<UserNgoFollowResponse>.Failure(transactionResult.Errors);
+
+        return Result.Success(MapToResponse(userNgoFollow, user.Name, ngo.Name));
     }
 
-    public async Task<Result<bool>> DeleteAsync(Guid userId, Guid ngoId, CancellationToken cancellationToken)
+    public async Task<Result> DeleteAsync(Guid userId, Guid ngoId, CancellationToken cancellationToken)
     {
         var follow = await unitOfWork.UserNgoFollowRepository.GetAsync(userId, ngoId, cancellationToken);
 
         if(follow is null)
-            return Result<bool>.Failure(UserNgoFollowErrors.NotFound);
+            return Result.Failure(UserNgoFollowErrors.NotFound);
 
         return await unitOfWork.ExecuteTransactionAsync(
             async () =>
             {
                 await unitOfWork.UserNgoFollowRepository.DeleteAsync(follow, cancellationToken);
 
-                return Result<bool>.Success(true);
+                return Result.Success();
 
             }, cancellationToken);
     }

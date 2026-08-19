@@ -23,7 +23,7 @@ namespace Prisma.Api.Controllers
                 request,
                 cancellationToken);
 
-            return result.ToApiResult(this);
+            return result.ToApiResult();
         }
 
         [HttpPost("login")]
@@ -33,7 +33,7 @@ namespace Prisma.Api.Controllers
                 request, 
                 cancellationToken);
 
-            return result.ToApiResult(this);
+            return result.ToApiResult();
         }
 
         [HttpPost("logout")]
@@ -53,7 +53,7 @@ namespace Prisma.Api.Controllers
                 request,
                 cancellationToken);
 
-            return result.ToApiResult(this);
+            return result.ToApiResult();
         }
     }
 }
