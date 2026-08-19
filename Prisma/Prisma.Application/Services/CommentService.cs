@@ -9,12 +9,12 @@ namespace Prisma.Application.Services;
 
 public class CommentService(IUnitOfWork unitOfWork) : ICommentService
 {
-    public async Task<Result<Guid>> CreateAsync(CommentDto commentDto, CancellationToken cancellationToken = default)
+    public async Task<Result<Guid>> CreateAsync(Guid userId, CommentDto commentDto, CancellationToken cancellationToken = default)
     {
         if (commentDto is null)
             return Result<Guid>.Failure(CommentErros.RequestCannotBeNull);
 
-        var comment = Comment.Create(commentDto.PostId, commentDto.UserId, commentDto.ParentCommentId, commentDto.Content);
+        var comment = Comment.Create(commentDto.PostId, userId, commentDto.ParentCommentId, commentDto.Content);
 
         return await unitOfWork.ExecuteTransactionAsync(
             async () =>
@@ -71,12 +71,15 @@ public class CommentService(IUnitOfWork unitOfWork) : ICommentService
                 c.CreatedAt)));
     }
 
-    public async Task<Result<Guid>> RemoveAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Result<Guid>> RemoveAsync(Guid userId, Guid id, CancellationToken cancellationToken = default)
     {
         var comment = await unitOfWork.CommentRepository.GetByIdAsync(id, cancellationToken);
 
         if (comment is null)
             return Result<Guid>.Failure(CommentErros.NotFound);
+
+        if (comment.UserId != userId)
+            return Result<Guid>.Failure(CommentErros.Unauthorized);
 
         comment.Remove();
 
@@ -89,12 +92,15 @@ public class CommentService(IUnitOfWork unitOfWork) : ICommentService
             }, cancellationToken);
     }
 
-    public async Task<Result<Guid>> UpdateAsync(Guid id, UpdateCommentDto updateCommentDto, CancellationToken cancellationToken = default)
+    public async Task<Result<Guid>> UpdateAsync(Guid userId, Guid id, UpdateCommentDto updateCommentDto, CancellationToken cancellationToken = default)
     {
         var comment = await unitOfWork.CommentRepository.GetByIdAsync(id, cancellationToken);
 
         if (comment is null)
             return Result<Guid>.Failure(CommentErros.NotFound);
+
+        if (comment.UserId != userId)
+            return Result<Guid>.Failure(CommentErros.Unauthorized);
 
         comment.UpdateComment(updateCommentDto.Content);
 

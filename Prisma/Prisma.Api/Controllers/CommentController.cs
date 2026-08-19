@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Prisma.Api.Extensions;
 using Prisma.Application.DTOs.Comment;
 using Prisma.Application.Interfaces;
-using Prisma.Domain.Entities;
 
 namespace Prisma.Api.Controllers;
 
@@ -39,32 +39,41 @@ public class CommentController(ICommentService commentService) : ControllerBase
         return result.ToApiResult(this);
     }
 
+    [Authorize]
     [HttpPost]
     [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create([FromBody] CommentDto commentDto, CancellationToken cancellationToken)
     {
-        var result = await commentService.CreateAsync(commentDto, cancellationToken);
+        var userId = User.GetUserId();
+
+        var result = await commentService.CreateAsync(userId, commentDto, cancellationToken);
 
         return result.ToApiResult(this);
     }
 
+    [Authorize]
     [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCommentDto updateCommentDto, CancellationToken cancellationToken)
     {
-        var result = await commentService.UpdateAsync(id, updateCommentDto, cancellationToken);
+        var userId = User.GetUserId();
+
+        var result = await commentService.UpdateAsync(userId, id, updateCommentDto, cancellationToken);
 
         return result.ToApiResult(this);
     }
 
+    [Authorize]
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Remove(Guid id, CancellationToken cancellationToken)
     {
-        var result = await commentService.RemoveAsync(id, cancellationToken);
+        var userId = User.GetUserId();
+
+        var result = await commentService.RemoveAsync(userId, id, cancellationToken);
 
         return result.ToApiResult(this);
     }
