@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Prisma.Api.Extensions;
 using Prisma.Application.DTOs.UserNgoFollow;
 using Prisma.Application.Interfaces;
+using System.Security.Claims;
 
 namespace Prisma.Api.Controllers
 {
@@ -9,18 +11,26 @@ namespace Prisma.Api.Controllers
     [Route("api/user-ngo-follow")]
     public class UserNgoFollowController(IUserNgoFollowService userNgoFollowService) : ControllerBase
     {
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Create(CreateUserNgoFollowRequest request, CancellationToken cancellationToken)
         {
-            var result = await userNgoFollowService.CreateAsync(request, cancellationToken);
+            var userId = User.GetUserId();
+
+            var result = await userNgoFollowService.CreateAsync(userId, request, cancellationToken);
 
             return result.ToApiResult(this);
         }
 
-        [HttpGet("user/{userId:guid}")]
-        public async Task<IActionResult> GetByUserId(Guid userId, CancellationToken cancellationToken)
+        [Authorize]
+        [HttpGet("me")]
+        public async Task<IActionResult> GetMyFollows(CancellationToken cancellationToken)
         {
-            var result = await userNgoFollowService.GetByUserIdAsync(userId, cancellationToken);
+            var userId = User.GetUserId();
+
+            var result = await userNgoFollowService.GetByUserIdAsync(
+                userId,
+                cancellationToken);
 
             return result.ToApiResult(this);
         }
@@ -33,9 +43,12 @@ namespace Prisma.Api.Controllers
             return result.ToApiResult(this);
         }
 
-        [HttpDelete("{userId:guid}/{ngoId:guid}")]
-        public async Task<IActionResult> Delete(Guid userId, Guid ngoId, CancellationToken cancellationToken)
+        [Authorize]
+        [HttpDelete("{ngoId:guid}")]
+        public async Task<IActionResult> Delete(Guid ngoId, CancellationToken cancellationToken)
         {
+            var userId = User.GetUserId();
+
             var result = await userNgoFollowService.DeleteAsync(userId, ngoId, cancellationToken);
 
             return result.ToApiResult(this);
