@@ -58,9 +58,7 @@ public class CommentController(ICommentService commentService) : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCommentDto updateCommentDto, CancellationToken cancellationToken)
     {
-        var userId = User.GetUserId();
-
-        var result = await commentService.UpdateAsync(userId, id, updateCommentDto, cancellationToken);
+        var result = await commentService.UpdateAsync(id, updateCommentDto, cancellationToken);
 
         return result.ToApiResult();
     }
@@ -71,9 +69,7 @@ public class CommentController(ICommentService commentService) : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Remove(Guid id, CancellationToken cancellationToken)
     {
-        var userId = User.GetUserId();
-
-        var result = await commentService.RemoveAsync(userId, id, cancellationToken);
+        var result = await commentService.RemoveAsync(id, cancellationToken);
 
         return result.ToApiResult();
     }
