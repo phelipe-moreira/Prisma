@@ -81,14 +81,14 @@ public class CommentService(IUnitOfWork unitOfWork) : ICommentService
         var comment = await unitOfWork.CommentRepository.GetByIdAsync(id, cancellationToken);
 
         if (comment is null)
-            return Result.Failure(CommentErros.NotFound);
+            return (Result<Guid>)Result.Failure(CommentErros.NotFound);
 
         if (comment.UserId != userId)
             return Result<Guid>.Failure(CommentErros.Unauthorized);
 
         comment.Remove();
 
-        return await unitOfWork.ExecuteTransactionAsync(
+        return (Result<Guid>)await unitOfWork.ExecuteTransactionAsync(
             async () =>
             {
                 unitOfWork.CommentRepository.Update(comment);

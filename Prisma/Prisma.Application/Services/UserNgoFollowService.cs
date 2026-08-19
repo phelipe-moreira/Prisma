@@ -27,10 +27,7 @@ public class UserNgoFollowService(IUnitOfWork unitOfWork) : IUserNgoFollowServic
         if(exists)
             return Result<UserNgoFollowResponse>.Failure(UserNgoFollowErrors.AlreadyExists);
 
-        return await unitOfWork.ExecuteTransactionAsync(
-            async () =>
-            {
-                var userNgoFollow = UserNgoFollow.Create(userId, request.NgoId);
+        var userNgoFollow = UserNgoFollow.Create(userId, request.NgoId);
 
         var transactionResult = await unitOfWork.ExecuteTransactionAsync(
             async () =>
