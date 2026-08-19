@@ -25,8 +25,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<PostLike> PostLikes { get; set; }
 
-    public DbSet<PostLink> PostLinks { get; set; }
-
     public DbSet<PostMedia> PostMedias { get; set; }
 
     public DbSet<SavedPost> SavedPosts { get; set; }

@@ -23,8 +23,6 @@ public class Post
 
     public ICollection<PostLike> PostLikes { get; set; } = [];
 
-    public ICollection<PostLink> PostLinks { get; set; } = [];
-
     public ICollection<PostMedia> PostMedias { get; set; } = [];
 
     public ICollection<SavedPost> SavedPosts { get; set; } = [];
