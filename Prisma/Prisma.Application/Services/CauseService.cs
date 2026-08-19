@@ -37,7 +37,7 @@ public class CauseService(IUnitOfWork unitOfWork) : ICauseService
     {
         var exists = await unitOfWork.CauseRepository.ExistsByNameAsync(request.Name, cancellationToken);
 
-        return exists ? Result.Success() : Result.Failure(CauseErrors.AlreadyExists);
+        return exists ? Result.Failure(CauseErrors.AlreadyExists) : Result.Success();
     }
 
     public async Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken)
