@@ -6,6 +6,7 @@ using Prisma.Domain.Abstractions;
 using Prisma.Domain.Entities;
 using Prisma.Domain.Enums;
 using Prisma.Domain.Models;
+using System.Xml.Linq;
 
 namespace Prisma.Application.Services;
 
@@ -48,22 +49,27 @@ public class NgoService(IUnitOfWork unitOfWork) : INgoService
 
         ngo.AddMember(request.UserId, UserNgoRole.Admin);
 
-        return await unitOfWork.ExecuteTransactionAsync(
+        var transactionResult = await unitOfWork.ExecuteTransactionAsync(
             async () =>
             {
                 await unitOfWork.NgoRepository.AddAsync(ngo, cancellationToken);
 
-                return Result<NgoResponse>.Success(MapToResponse(ngo));
+                return Result.Success();
             },
             cancellationToken);
+
+        if (transactionResult.IsFailure)
+            return Result<NgoResponse>.Failure(transactionResult.Errors);
+
+        return Result.Success(MapToResponse(ngo));
     }
 
-    public async Task<Result<bool>> DeleteAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
         var ngo = await unitOfWork.NgoRepository.GetByIdAsync(id, cancellationToken);
 
         if (ngo is null)
-            return Result<bool>.Failure(NgoErrors.NotFound);
+            return Result.Failure(NgoErrors.NotFound);
 
         ngo.Deactivate();
 
@@ -72,7 +78,7 @@ public class NgoService(IUnitOfWork unitOfWork) : INgoService
             {
                 await unitOfWork.NgoRepository.DeleteAsync(ngo, cancellationToken);
 
-                return Result<bool>.Success(true);
+                return Result.Success();
             },
             cancellationToken);
     }
@@ -115,17 +121,21 @@ public class NgoService(IUnitOfWork unitOfWork) : INgoService
             request.State
         );
 
-        if (!await VerifyIfCausesExists(request, cancellationToken))
-            return Result<NgoResponse>.Failure(NgoErrors.CauseNotFound);
+        var verifyCauseResult = await VerifyIfCausesExists(request, cancellationToken);
+
+        if (verifyCauseResult.IsFailure)
+            return Result<NgoResponse>.Failure(verifyCauseResult.Errors);
 
         ngo.UpdateCauses(request.CauseIds);
 
-        if (!await VerifyIfMembersExists(request, cancellationToken))
-            return Result<NgoResponse>.Failure(UserErrors.SomeNotFound);
+        var verifyMemberResult = await VerifyIfMembersExists(request, cancellationToken);
+
+        if (verifyMemberResult.IsFailure)
+            return Result<NgoResponse>.Failure(verifyMemberResult.Errors);
 
         ngo.UpdateMembers(request.Members);
 
-        return await unitOfWork.ExecuteTransactionAsync(
+        var transactionResult = await unitOfWork.ExecuteTransactionAsync(
             async () =>
             {
                 await unitOfWork.NgoRepository.UpdateAsync(ngo, cancellationToken);
@@ -133,9 +143,14 @@ public class NgoService(IUnitOfWork unitOfWork) : INgoService
                 return Result<NgoResponse>.Success(MapToResponse(ngo));
 
             }, cancellationToken);
+
+        if (transactionResult.IsFailure)
+            return Result<NgoResponse>.Failure(transactionResult.Errors);
+
+        return Result.Success(MapToResponse(ngo));
     }
 
-    private async Task<bool> VerifyIfCausesExists(UpdateNgoRequest request, CancellationToken cancellationToken)
+    private async Task<Result> VerifyIfCausesExists(UpdateNgoRequest request, CancellationToken cancellationToken)
     {
         var causes = await unitOfWork.CauseRepository
             .GetAllAsync(cancellationToken);
@@ -149,12 +164,23 @@ public class NgoService(IUnitOfWork unitOfWork) : INgoService
             .ToList();
 
         if (missingIds is { Count: > 0 })
-            return false;
+        {
+            var errors = missingIds.Select(missingId =>
+            {
+                var error = NgoErrors.CauseNotFound;
+                error.Value = missingId;
 
-        return true;
+                return error;
+            })
+            .ToList();
+
+            return Result.Failure(errors);
+        }
+
+        return Result.Success();
     }
 
-    private async Task<bool> VerifyIfMembersExists(UpdateNgoRequest request, CancellationToken cancellationToken)
+    private async Task<Result> VerifyIfMembersExists(UpdateNgoRequest request, CancellationToken cancellationToken)
     {
         var members = await unitOfWork.UserRepository
             .GetAllAsync(cancellationToken);
@@ -168,9 +194,20 @@ public class NgoService(IUnitOfWork unitOfWork) : INgoService
             .ToList();
 
         if (missingIds is { Count: > 0 })
-            return false;
+        {
+            var errors = missingIds.Select(missingId =>
+            {
+                var error = UserErrors.NotFound;
+                error.Value = missingId;
 
-        return true;
+                return error;
+            })
+            .ToList();
+
+            return Result.Failure(errors);
+        }
+
+        return Result.Success();
     }
 
     private static NgoResponse MapToResponse(Ngo ngo)

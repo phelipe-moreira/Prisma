@@ -9,6 +9,6 @@ namespace Prisma.Application.Interfaces
         Task<Result<NgoResponse>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
         Task<Result<NgoResponse>> CreateAsync(CreateNgoRequest request, CancellationToken cancellationToken = default);
         Task<Result<NgoResponse>> UpdateAsync(Guid id, UpdateNgoRequest request, CancellationToken cancellationToken = default);
-        Task<Result<bool>> DeleteAsync(Guid id, CancellationToken cancellationToken);
+        Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken);
     }
 }

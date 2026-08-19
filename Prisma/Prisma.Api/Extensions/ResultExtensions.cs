@@ -6,22 +6,30 @@ namespace Prisma.Api.Extensions;
 
 public static class ResultExtensions
 {
-    public static IActionResult ToApiResult<T>(this Result<T> result, ControllerBase controller)
+    public static IActionResult ToApiResult<T>(this Result<T> result)
     {
         if (result.IsSuccess)
         {
-            return controller.Ok(new ApiResponse<T>
+            return new OkObjectResult(new ApiResponse<T>
             {
                 Success = true,
                 Data = result.Value
             });
         }
 
-        var problem = result.Error!.ToProblemDetails();
+        return result.Errors.ToErrorResponse();
+    }
 
-        return controller.Problem(
-            detail: problem.Detail,
-            title: problem.Title,
-            statusCode: problem.Status);
+    public static IActionResult ToApiResult(this Result result)
+    {
+        if (result.IsSuccess)
+        {
+            return new OkObjectResult(new ApiResponse
+            {
+                Success = true
+            });
+        }
+
+        return result.Errors.ToErrorResponse();
     }
 }
