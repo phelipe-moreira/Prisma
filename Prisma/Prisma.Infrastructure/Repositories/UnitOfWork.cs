@@ -13,7 +13,7 @@ public class UnitOfWork(AppDbContext context) : IUnitOfWork
     public ICommentRepository CommentRepository => field ??= new CommentRepository(context);
     public IUserNgoFollowRepository UserNgoFollowRepository => field ??= new UserNgoFollowRepository(context);
 
-    public async Task<Result<T>> ExecuteTransactionAsync<T>(Func<Task<Result<T>>> action, CancellationToken cancellationToken = default)
+    public async Task<Result> ExecuteTransactionAsync(Func<Task<Result>> action, CancellationToken cancellationToken = default)
     {
         await using var transaction =
             await context.Database.BeginTransactionAsync(cancellationToken);
@@ -36,7 +36,7 @@ public class UnitOfWork(AppDbContext context) : IUnitOfWork
         catch
         {
             await transaction.RollbackAsync(cancellationToken);
-            return Result<T>.Failure(TransactionErrors.Failed);
+            return Result.Failure(TransactionErrors.Failed);
         }
     }
 }
