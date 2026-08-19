@@ -17,7 +17,7 @@ public class CommentController(ICommentService commentService) : ControllerBase
     {
         var result = await commentService.GetAllAsync(cancellationToken);
 
-        return result.ToApiResult(this);
+        return result.ToApiResult();
     }
 
     [HttpGet("{id:guid}")]
@@ -27,7 +27,7 @@ public class CommentController(ICommentService commentService) : ControllerBase
     {
         var result = await commentService.GetByIdAsync(id, cancellationToken);
 
-        return result.ToApiResult(this);
+        return result.ToApiResult();
     }
 
     [HttpGet("parent/{parentId:guid}")]
@@ -36,7 +36,7 @@ public class CommentController(ICommentService commentService) : ControllerBase
     {
         var result = await commentService.GetByParentIdAsync(parentId, cancellationToken);
 
-        return result.ToApiResult(this);
+        return result.ToApiResult();
     }
 
     [Authorize]
@@ -49,7 +49,7 @@ public class CommentController(ICommentService commentService) : ControllerBase
 
         var result = await commentService.CreateAsync(userId, commentDto, cancellationToken);
 
-        return result.ToApiResult(this);
+        return result.ToApiResult();
     }
 
     [Authorize]
@@ -62,7 +62,7 @@ public class CommentController(ICommentService commentService) : ControllerBase
 
         var result = await commentService.UpdateAsync(userId, id, updateCommentDto, cancellationToken);
 
-        return result.ToApiResult(this);
+        return result.ToApiResult();
     }
 
     [Authorize]
@@ -75,6 +75,6 @@ public class CommentController(ICommentService commentService) : ControllerBase
 
         var result = await commentService.RemoveAsync(userId, id, cancellationToken);
 
-        return result.ToApiResult(this);
+        return result.ToApiResult();
     }
 }

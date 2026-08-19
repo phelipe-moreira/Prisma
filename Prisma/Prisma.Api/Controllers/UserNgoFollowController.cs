@@ -19,7 +19,7 @@ namespace Prisma.Api.Controllers
 
             var result = await userNgoFollowService.CreateAsync(userId, request, cancellationToken);
 
-            return result.ToApiResult(this);
+            return result.ToApiResult();
         }
 
         [Authorize]
@@ -32,7 +32,7 @@ namespace Prisma.Api.Controllers
                 userId,
                 cancellationToken);
 
-            return result.ToApiResult(this);
+            return result.ToApiResult();
         }
 
         [HttpGet("ngo/{ngoId:guid}")]
@@ -40,7 +40,7 @@ namespace Prisma.Api.Controllers
         {
             var result = await userNgoFollowService.GetByNgoIdAsync(ngoId, cancellationToken);
 
-            return result.ToApiResult(this);
+            return result.ToApiResult();
         }
 
         [Authorize]
@@ -51,7 +51,7 @@ namespace Prisma.Api.Controllers
 
             var result = await userNgoFollowService.DeleteAsync(userId, ngoId, cancellationToken);
 
-            return result.ToApiResult(this);
+            return result.ToApiResult();
         }
     }
 }

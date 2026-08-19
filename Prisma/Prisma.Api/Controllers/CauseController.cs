@@ -22,7 +22,7 @@ namespace Prisma.Api.Controllers
         {
             var result = await _causeService.GetAllAsync(cancellationToken);
 
-            return result.ToApiResult(this);
+            return result.ToApiResult();
         }
 
         [HttpGet("{id:guid}")]
@@ -30,7 +30,7 @@ namespace Prisma.Api.Controllers
         {
             var result = await _causeService.GetByIdAsync(id, cancellationToken);
 
-            return result.ToApiResult(this);
+            return result.ToApiResult();
         }
 
         [Authorize]
@@ -39,7 +39,7 @@ namespace Prisma.Api.Controllers
         {
             var result = await _causeService.CreateAsync(request, cancellationToken);
 
-            return result.ToApiResult(this);
+            return result.ToApiResult();
         }
 
         [Authorize]
@@ -48,16 +48,16 @@ namespace Prisma.Api.Controllers
         {
             var result = await _causeService.UpdateAsync(id, request, cancellationToken);
 
-            return result.ToApiResult(this);
+            return result.ToApiResult();
         }
 
         [Authorize]
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
         {
-            await _causeService.DeleteAsync(id, cancellationToken);
+            var result = await _causeService.DeleteAsync(id, cancellationToken);
 
-            return NoContent();
+            return result.ToApiResult();
         }
 
     }

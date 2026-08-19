@@ -13,6 +13,6 @@ public interface IUnitOfWork
     INgoRepository NgoRepository { get; }
 
     IUserNgoFollowRepository UserNgoFollowRepository { get; }
-    Task<Result<T>> ExecuteTransactionAsync<T>(Func<Task<Result<T>>> action, CancellationToken cancellationToken = default);
+    Task<Result> ExecuteTransactionAsync(Func<Task<Result>> action, CancellationToken cancellationToken = default);
 }
 

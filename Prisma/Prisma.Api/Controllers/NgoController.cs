@@ -15,7 +15,7 @@ namespace Prisma.Api.Controllers
         {
             var result = await ngoService.GetAllAsync(cancellationToken);
 
-            return result.ToApiResult(this);
+            return result.ToApiResult();
         }
 
         [HttpGet("{id:guid}")]
@@ -23,7 +23,7 @@ namespace Prisma.Api.Controllers
         {
             var result = await ngoService.GetByIdAsync(id, cancellationToken);
 
-            return result.ToApiResult(this);
+            return result.ToApiResult();
         }
 
         [Authorize]
@@ -32,7 +32,7 @@ namespace Prisma.Api.Controllers
         {
             var result = await ngoService.CreateAsync(request, cancellationToken);
 
-            return result.ToApiResult(this);
+            return result.ToApiResult();
         }
 
         [Authorize]
@@ -41,7 +41,7 @@ namespace Prisma.Api.Controllers
         {
             var result = await ngoService.UpdateAsync(id, request, cancellationToken);
 
-            return result.ToApiResult(this);
+            return result.ToApiResult();
         }
 
         [Authorize]
@@ -50,7 +50,7 @@ namespace Prisma.Api.Controllers
         {
             var result = await ngoService.DeleteAsync(id, cancellationToken);
 
-            return result.ToApiResult(this);
+            return result.ToApiResult();
         }
     }
 }
