@@ -31,9 +31,4 @@ public class CommentRepository(AppDbContext context) : ICommentRepository
     {
         context.Comments.Update(comment);
     }
-
-    public void Remove(Comment comment)
-    {
-        context.Comments.Update(comment);
-    }
 }
