@@ -28,5 +28,30 @@ public class Post
     public ICollection<SavedPost> SavedPosts { get; set; } = [];
 
     public ICollection<Comment> Comments { get; set; } = [];
+
+    private Post() { Id = Guid.NewGuid(); }
+
+    public static Post Create(
+        Guid ngoId, 
+        string title, 
+        string? content, 
+        PostStatus status)
+        => new()
+        {
+            Title = title,
+            NgoId = ngoId,
+            Content = content,
+            Status = status,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+    public void Update(string title, string? content, PostStatus status)
+    {
+        Title = title;
+        Content = content;
+        Status = status;
+        UpdatedAt = DateTime.UtcNow;
+    }
 }
 

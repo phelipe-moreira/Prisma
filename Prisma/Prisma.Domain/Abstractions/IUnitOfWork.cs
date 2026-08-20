@@ -14,6 +14,8 @@ public interface IUnitOfWork
 
     IUserNgoFollowRepository UserNgoFollowRepository { get; }
 
+    IPostRepository PostRepository { get; }
+
     IPostLikeRepository PostLikeRepository { get; }
     Task<Result> ExecuteTransactionAsync(Func<Task<Result>> action, CancellationToken cancellationToken = default);
 }
