@@ -12,6 +12,7 @@ public class UnitOfWork(AppDbContext context) : IUnitOfWork
     public INgoRepository NgoRepository => field ??= new NgoRepository(context);
     public ICommentRepository CommentRepository => field ??= new CommentRepository(context);
     public IUserNgoFollowRepository UserNgoFollowRepository => field ??= new UserNgoFollowRepository(context);
+    public IPostLikeRepository PostLikeRepository => field ??= new PostLikeRepository(context);
 
     public async Task<Result> ExecuteTransactionAsync(Func<Task<Result>> action, CancellationToken cancellationToken = default)
     {
