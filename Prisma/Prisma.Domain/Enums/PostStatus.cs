@@ -4,6 +4,5 @@ public enum PostStatus
 {
     Draft,
     Published,
-    Archived,
     Removed
 }
