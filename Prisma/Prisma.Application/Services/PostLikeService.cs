@@ -10,7 +10,7 @@ namespace Prisma.Application.Services
     {
         public async Task<Result> LikeAsync(Guid userId, Guid postId, CancellationToken cancellationToken = default)
         {
-            Post post = null; //await unitOfWork.PostRepository.GetByIdAsync(postId, cancellationToken);
+            var post = await unitOfWork.PostRepository.GetByIdAsync(postId, cancellationToken);
 
             if (post is null)
                 return Result.Failure(PostLikeErrors.PostNotFound);
@@ -22,7 +22,7 @@ namespace Prisma.Application.Services
 
             var postLike = PostLike.Create(userId, postId);
 
-            return await unitOfWork.ExecuteTransactionAsync(
+            var transactionResult = await unitOfWork.ExecuteTransactionAsync(
                 async () =>
                 {
                     await unitOfWork.PostLikeRepository.AddAsync(postLike, cancellationToken);
@@ -30,11 +30,16 @@ namespace Prisma.Application.Services
                     return Result.Success();
                 },
                 cancellationToken);
+
+            if (transactionResult.IsFailure)
+                return Result.Failure(transactionResult.Errors);
+
+            return Result.Success();
         }
 
         public async Task<Result> UnlikeAsync(Guid userId, Guid postId, CancellationToken cancellationToken = default)
         {
-            Post post = null; //await unitOfWork.PostRepository.GetByIdAsync(postId, cancellationToken);
+            var post = await unitOfWork.PostRepository.GetByIdAsync(postId, cancellationToken);
 
             if (post is null)
                 return Result.Failure(PostLikeErrors.PostNotFound);
@@ -44,7 +49,7 @@ namespace Prisma.Application.Services
             if (postLike is null)
                 return Result.Failure(PostLikeErrors.NotLiked);
 
-            return await unitOfWork.ExecuteTransactionAsync(
+            var transactionResult =  await unitOfWork.ExecuteTransactionAsync(
                 async () =>
                 {
                     await unitOfWork.PostLikeRepository.DeleteAsync(postLike, cancellationToken);
@@ -52,6 +57,11 @@ namespace Prisma.Application.Services
                     return Result.Success();
                 },
                 cancellationToken);
+
+            if (transactionResult.IsFailure)
+                return Result.Failure(transactionResult.Errors);
+
+            return Result.Success();
         }
     }
 }
