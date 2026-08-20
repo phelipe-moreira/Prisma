@@ -16,6 +16,7 @@ public interface IUnitOfWork
 
     IPostRepository PostRepository { get; }
 
+    IPostLikeRepository PostLikeRepository { get; }
     Task<Result> ExecuteTransactionAsync(Func<Task<Result>> action, CancellationToken cancellationToken = default);
 }
 
