@@ -14,5 +14,20 @@ public class PostMedia
     public Post Post { get; set; } = null!;
 
     public Media Media { get; set; } = null!;
+
+
+    private PostMedia() { }
+
+    public static PostMedia Create(
+        Guid postId,
+        Guid mediaId,
+        int displayOrder)
+        => new()
+        {
+            PostId = postId,
+            MediaId = mediaId,
+            DisplayOrder = displayOrder,
+            AddedAt = DateTime.UtcNow
+        };
 }
 
