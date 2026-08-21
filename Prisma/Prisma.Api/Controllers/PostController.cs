@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Prisma.Api.Extensions;
-using Prisma.Application.DTOs.Ngo;
 using Prisma.Application.DTOs.Post;
 using Prisma.Application.Interfaces;
 
