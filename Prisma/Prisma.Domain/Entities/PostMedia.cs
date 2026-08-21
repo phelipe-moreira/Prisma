@@ -15,7 +15,6 @@ public class PostMedia
 
     public Media Media { get; set; } = null!;
 
-
     private PostMedia() { }
 
     public static PostMedia Create(
