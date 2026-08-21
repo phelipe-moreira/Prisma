@@ -53,6 +53,7 @@ public static class DependencyInjection
         services.AddScoped<IPostService, PostService>();
         services.AddScoped<IPostLikeRepository, PostLikeRepository>();
         services.AddScoped<IPostLikeService, PostLikeService>();
+        services.AddScoped<IPostMediaService, PostMediaService>();
 
         return services;
     }
