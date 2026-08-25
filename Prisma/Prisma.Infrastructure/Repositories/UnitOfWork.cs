@@ -14,6 +14,7 @@ public class UnitOfWork(AppDbContext context) : IUnitOfWork
     public IUserNgoFollowRepository UserNgoFollowRepository => field ??= new UserNgoFollowRepository(context);
     public IPostRepository PostRepository => field ??= new PostRepository(context);
     public IPostLikeRepository PostLikeRepository => field ??= new PostLikeRepository(context);
+    public ISavedPostRepository SavedPostRepository => field ??= new SavedPostRepository(context);
 
     public async Task<Result> ExecuteTransactionAsync(Func<Task<Result>> action, CancellationToken cancellationToken = default)
     {

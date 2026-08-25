@@ -12,4 +12,19 @@ public class SavedPost
     public User User { get; set; } = null!;
 
     public Post Post { get; set; } = null!;
+
+    private SavedPost()
+    {
+
+    }
+
+    public static SavedPost Create(Guid userId, Guid postId)
+    {
+        return new SavedPost()
+        {
+            UserId = userId,
+            PostId = postId,
+            SavedAt = DateTime.UtcNow
+        };
+    }
 }
