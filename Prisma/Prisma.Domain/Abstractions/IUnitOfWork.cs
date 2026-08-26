@@ -18,6 +18,8 @@ public interface IUnitOfWork
 
     IPostLikeRepository PostLikeRepository { get; }
 
+    ISavedPostRepository SavedPostRepository { get; }
+
     IPostMediaRepository PostMediaRepository { get; }
 
     IMediaRepository MediaRepository { get; }
