@@ -17,4 +17,16 @@ public class Media
     public DateTime CreatedAt { get; set; }
 
     public ICollection<PostMedia> PostMedias { get; set; } = [];
+
+    private Media() { Id = Guid.NewGuid(); }
+
+    public static Media Create(MediaType type, string url, string? title, string? description)
+        => new()
+        {
+            Type = type,
+            Url = url,
+            Title = title,
+            Description = description,
+            CreatedAt = DateTime.UtcNow
+        };
 }

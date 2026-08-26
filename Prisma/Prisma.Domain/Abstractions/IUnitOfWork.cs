@@ -19,6 +19,11 @@ public interface IUnitOfWork
     IPostLikeRepository PostLikeRepository { get; }
 
     ISavedPostRepository SavedPostRepository { get; }
+
+    IPostMediaRepository PostMediaRepository { get; }
+
+    IMediaRepository MediaRepository { get; }
+
     Task<Result> ExecuteTransactionAsync(Func<Task<Result>> action, CancellationToken cancellationToken = default);
 }
 
