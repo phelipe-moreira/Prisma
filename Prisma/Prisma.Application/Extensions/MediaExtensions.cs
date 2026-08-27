@@ -12,6 +12,7 @@ public static class MediaExtensions
             {
                 Id = media.Id,
                 Type = media.Type,
+                StorageKey = media.StorageKey,
                 CreatedAt = media.CreatedAt,
             };
     }
