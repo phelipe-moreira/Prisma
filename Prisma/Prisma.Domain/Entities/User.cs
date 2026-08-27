@@ -66,9 +66,11 @@ public class User
     }
 
     public void UpdateProfile(
+        string name,
         string? bio,
         string? profilePictureUrl)
     {
+        Name = name;
         Bio = bio;
         ProfilePictureUrl = profilePictureUrl;
         UpdatedAt = DateTime.UtcNow;
