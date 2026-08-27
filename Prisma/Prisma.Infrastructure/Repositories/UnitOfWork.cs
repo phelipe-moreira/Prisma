@@ -17,6 +17,7 @@ public class UnitOfWork(AppDbContext context) : IUnitOfWork
     public ISavedPostRepository SavedPostRepository => field ??= new SavedPostRepository(context);
     public IPostMediaRepository PostMediaRepository => field ??= new PostMediaRepository(context);
     public IMediaRepository MediaRepository => field ??= new MediaRepository(context);
+    public IRefreshTokenRepository RefreshTokenRepository => field ??= new RefreshTokenRepository(context);
 
     public async Task<Result> ExecuteTransactionAsync(Func<Task<Result>> action, CancellationToken cancellationToken = default)
     {
