@@ -8,25 +8,20 @@ public class Media
 
     public MediaType Type { get; set; }
 
-    public required string Url { get; set; }
-
-    public string? Title { get; set; }
-
-    public string? Description { get; set; }
+    public required string StorageKey { get; set; }
 
     public DateTime CreatedAt { get; set; }
 
     public ICollection<PostMedia> PostMedias { get; set; } = [];
 
-    private Media() { Id = Guid.NewGuid(); }
+    private Media() { }
 
-    public static Media Create(MediaType type, string url, string? title, string? description)
+    public static Media Create(Guid Id, MediaType type, string storageKey)
         => new()
         {
+            Id = Id,
             Type = type,
-            Url = url,
-            Title = title,
-            Description = description,
+            StorageKey = storageKey,
             CreatedAt = DateTime.UtcNow
         };
 }
