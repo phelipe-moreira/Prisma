@@ -8,15 +8,23 @@ using Prisma.Domain.Models;
 
 namespace Prisma.Application.Services;
 
-public class PostService(IUnitOfWork unitOfWork) : IPostService
+public class PostService(
+    IUnitOfWork unitOfWork,
+    INgoAccessService ngoAccessService) : IPostService
 {
-    public async Task<Result<Guid>> CreateAsync(CreatePostDto createPostDto, CancellationToken cancellationToken = default)
+    public async Task<Result<Guid>> CreateAsync(
+        Guid userId,
+        CreatePostDto createPostDto,
+        CancellationToken cancellationToken = default)
     {
         if (createPostDto is null)
             return Result<Guid>.Failure(PostErrors.RequestCannotBeNull);
 
         if (!await VerifyIfNgoExists(createPostDto.NgoId))
             return Result<Guid>.Failure(NgoErrors.NotFound);
+
+        if (!await ngoAccessService.IsAdminAsync(userId, createPostDto.NgoId, cancellationToken))
+            return Result<Guid>.Failure(PostErrors.Forbidden);
 
         var post = Post.Create(createPostDto.NgoId, createPostDto.Title, createPostDto.Content, createPostDto.Status);
 
@@ -54,12 +62,18 @@ public class PostService(IUnitOfWork unitOfWork) : IPostService
         return Result.Success(post.ToResponse());
     }
 
-    public async Task<Result> RemoveAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Result> RemoveAsync(
+        Guid userId,
+        Guid id,
+        CancellationToken cancellationToken = default)
     {
         var post = await unitOfWork.PostRepository.GetByIdAsync(id, cancellationToken);
 
         if (post is null)
             return Result.Failure(PostErrors.NotFound);
+
+        if (!await ngoAccessService.IsAdminAsync(userId, post.NgoId, cancellationToken))
+            return Result.Failure(PostErrors.Forbidden);
 
         var transactionResult = await unitOfWork.ExecuteTransactionAsync(
             async () =>
@@ -75,7 +89,11 @@ public class PostService(IUnitOfWork unitOfWork) : IPostService
         return Result.Success();
     }
 
-    public async Task<Result> UpdateAsync(Guid id, UpdatePostDto updateCommentDto, CancellationToken cancellationToken = default)
+    public async Task<Result> UpdateAsync(
+        Guid userId,
+        Guid id,
+        UpdatePostDto updateCommentDto,
+        CancellationToken cancellationToken = default)
     {
         if (updateCommentDto is null)
             return Result.Failure(PostErrors.RequestCannotBeNull);
@@ -84,6 +102,9 @@ public class PostService(IUnitOfWork unitOfWork) : IPostService
 
         if (post is null)
             return Result.Failure(PostErrors.NotFound);
+
+        if (!await ngoAccessService.IsAdminAsync(userId, post.NgoId, cancellationToken))
+            return Result.Failure(PostErrors.Forbidden);
 
         post.Update(
             updateCommentDto.Title, 

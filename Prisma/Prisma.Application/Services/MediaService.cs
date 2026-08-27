@@ -9,7 +9,10 @@ using Prisma.Domain.Models;
 
 namespace Prisma.Application.Services;
 
-public class MediaService(IUnitOfWork unitOfWork, IStorageService storageService) : IMediaService
+public class MediaService(
+    IUnitOfWork unitOfWork,
+    IStorageService storageService,
+    INgoAccessService ngoAccessService) : IMediaService
 {
     private const long MaxImageSize = 10 * 1024 * 1024;
     private const long MaxVideoSize = 100 * 1024 * 1024;
@@ -23,49 +26,74 @@ public class MediaService(IUnitOfWork unitOfWork, IStorageService storageService
         "video/webm"
     ];
 
-    public async Task<Result> CompleteUploadAsync(Guid postId, Guid mediaId, CompleteMediaUploadRequest request, CancellationToken cancellationToken)
+    public async Task<Result> CompleteUploadAsync(
+        Guid userId,
+        Guid postId,
+        Guid mediaId,
+        CompleteMediaUploadRequest request,
+        CancellationToken cancellationToken)
     {
-        if (request is null)
-            return Result.Failure(MediaErrors.RequestCannotBeNull);
-
         var post = await unitOfWork.PostRepository.GetByIdAsync(postId, cancellationToken);
 
         if (post is null)
             return Result.Failure(PostErrors.NotFound);
+
+        if (!await ngoAccessService.IsAdminAsync(userId, post.NgoId, cancellationToken))
+            return Result.Failure(PostErrors.Forbidden);
 
         var exists = await storageService.ExistsAsync(request.StorageKey ?? string.Empty, cancellationToken);
 
         if (!exists)
             return Result.Failure(MediaErrors.UploadNotFound);
 
+        var expectedPrefix = request.Type == MediaType.Image
+            ? "images/"
+            : "videos/";
+
+        var storageKey = request.StorageKey;
+
+        if (storageKey is null ||
+            !storageKey.StartsWith(expectedPrefix) ||
+            !storageKey.Contains(mediaId.ToString()))
+            return Result.Failure(MediaErrors.InvalidStorageKey);
+
         var media = Media.Create(mediaId, request.Type, request.StorageKey ?? string.Empty);
+        var postMedia = PostMedia.Create(postId, mediaId, request.DisplayOrder);
 
         var transactionResult = await unitOfWork.ExecuteTransactionAsync(
             async () =>
             {
                 await unitOfWork.MediaRepository.AddAsync(media, cancellationToken: cancellationToken);
 
+                await unitOfWork.PostMediaRepository.AddAsync(postMedia, cancellationToken: cancellationToken);
+
                 return Result.Success();
             }, cancellationToken);
 
         if (transactionResult.IsFailure)
-            return Result<Guid>.Failure(transactionResult.Errors);
+            return Result.Failure(transactionResult.Errors);
 
         return Result.Success();
     }
 
-    public async Task<Result> DeleteAsync(Guid mediaId, CancellationToken cancellationToken)
+    public async Task<Result> DeleteAsync(
+        Guid userId,
+        Guid mediaId,
+        CancellationToken cancellationToken)
     {
         var media = await unitOfWork.MediaRepository.GetByIdAsync(mediaId, cancellationToken);
 
         if (media is null)
             return Result<MediaResponse>.Failure(MediaErrors.NotFound);
 
+        if (!await CanManageMediaAsync(userId, mediaId, cancellationToken))
+            return Result.Failure(PostErrors.Forbidden);
+
+        await storageService.DeleteAsync(media.StorageKey, cancellationToken);
+
         var transactionResult = await unitOfWork.ExecuteTransactionAsync(
             async () =>
             {
-                await storageService.DeleteAsync(media.StorageKey, cancellationToken);
-
                 await unitOfWork.MediaRepository.Delete(media);
 
                 return Result.Success();
@@ -78,24 +106,31 @@ public class MediaService(IUnitOfWork unitOfWork, IStorageService storageService
         return Result.Success();
     }
 
-    public async Task<Result<MediaResponse>> GetAsync(Guid mediaId, CancellationToken cancellationToken)
+    public async Task<Result<MediaResponse>> GetAsync(
+        Guid userId,
+        Guid mediaId,
+        CancellationToken cancellationToken)
     {
         var media = await unitOfWork.MediaRepository.GetByIdAsync(mediaId, cancellationToken);
 
         if (media is null)
             return Result<MediaResponse>.Failure(MediaErrors.NotFound);
 
-        var mediaReponse = media.ToResponse();
-        mediaReponse.Url = storageService.GetPublicUrl(media.StorageKey);
+        if (!await CanManageMediaAsync(userId, mediaId, cancellationToken))
+            return Result<MediaResponse>.Failure(PostErrors.Forbidden);
 
-        return Result.Success(mediaReponse);
+        var mediaResponse = media.ToResponse();
+        mediaResponse.Url = storageService.GetPublicUrl(media.StorageKey);
+
+        return Result.Success(mediaResponse);
     }
 
-    public async Task<Result<UploadMediaResponse>> GetUploadUrlAsync(Guid postId, UploadMediaRequest request, CancellationToken cancellationToken)
+    public async Task<Result<UploadMediaResponse>> GetUploadUrlAsync(
+        Guid userId,
+        Guid postId,
+        UploadMediaRequest request,
+        CancellationToken cancellationToken)
     {
-        if (request is null)
-            return Result<UploadMediaResponse>.Failure(MediaErrors.RequestCannotBeNull);
-
         if (!AllowedContentTypes.Contains(request.ContentType))
             return Result<UploadMediaResponse>.Failure(MediaErrors.InvalidContentType);
 
@@ -114,9 +149,12 @@ public class MediaService(IUnitOfWork unitOfWork, IStorageService storageService
         if (post is null)
             return Result<UploadMediaResponse>.Failure(PostErrors.NotFound);
 
+        if (!await ngoAccessService.IsAdminAsync(userId, post.NgoId, cancellationToken))
+            return Result<UploadMediaResponse>.Failure(PostErrors.Forbidden);
+
         var mediaId = Guid.NewGuid();
 
-        var extension = request.ContentType.Split('/')[1];
+        var extension = GetExtension(request.ContentType);
 
         var storageKey = mediaType is MediaType.Image
             ? $"images/{mediaId}.{extension}"
@@ -135,5 +173,41 @@ public class MediaService(IUnitOfWork unitOfWork, IStorageService storageService
         };
 
         return Result.Success(response);
+    }
+
+    private static string GetExtension(string contentType)
+    {
+        return contentType switch
+        {
+            "image/jpeg" => "jpg",
+            "image/png" => "png",
+            "image/webp" => "webp",
+            "video/mp4" => "mp4",
+            "video/webm" => "webm",
+            _ => throw new ArgumentOutOfRangeException(nameof(contentType))
+        };
+    }
+
+    private async Task<bool> CanManageMediaAsync(
+        Guid userId,
+        Guid mediaId,
+        CancellationToken cancellationToken)
+    {
+        var postIds = await unitOfWork.PostMediaRepository
+            .GetPostIdsByMediaIdAsync(mediaId, cancellationToken);
+
+        if (postIds.Count == 0)
+            return false;
+
+        foreach (var postId in postIds)
+        {
+            var post = await unitOfWork.PostRepository.GetByIdAsync(postId, cancellationToken);
+
+            if (post is null ||
+                !await ngoAccessService.IsAdminAsync(userId, post.NgoId, cancellationToken))
+                return false;
+        }
+
+        return true;
     }
 }
