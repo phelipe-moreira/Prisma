@@ -1,5 +1,7 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Prisma.Api.Responses;
 using Prisma.Api.Extensions;
 using Prisma.Domain.Models;
 
@@ -13,14 +15,22 @@ public class ErrorExtensionsTests
     [TestCase(ErrorType.NotFound, StatusCodes.Status404NotFound)]
     [TestCase(ErrorType.Conflict, StatusCodes.Status409Conflict)]
     [TestCase(ErrorType.Failure, StatusCodes.Status500InternalServerError)]
-    public void ToProblemDetails_ShouldMapErrorTypeToStatusCode(ErrorType errorType, int expectedStatusCode)
+    public void ToErrorResponse_ShouldMapErrorTypeToHttpResponse(ErrorType errorType, int expectedStatusCode)
     {
         var error = new Error("ERROR_CODE", "Error message", errorType);
 
-        var problemDetails = error.ToProblemDetails();
+        var actionResult = new[] { error }.ToErrorResponse();
 
-        problemDetails.Title.Should().Be("ERROR_CODE");
-        problemDetails.Detail.Should().Be("Error message");
-        problemDetails.Status.Should().Be(expectedStatusCode);
+        if (errorType is ErrorType.Forbidden)
+        {
+            actionResult.Should().BeOfType<ForbidResult>();
+            return;
+        }
+
+        var objectResult = actionResult.Should().BeAssignableTo<ObjectResult>().Subject;
+        objectResult.StatusCode.Should().Be(expectedStatusCode);
+
+        var response = objectResult.Value.Should().BeOfType<ErrorResponse>().Subject;
+        response.Errors.Should().ContainSingle().Which.Should().Be(error);
     }
 }

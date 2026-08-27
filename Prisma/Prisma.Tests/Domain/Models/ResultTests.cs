@@ -12,7 +12,7 @@ public class ResultTests
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Should().Be("payload");
-        result.Error.Should().BeNull();
+        result.Errors.Should().BeEmpty();
     }
 
     [Test]
@@ -24,6 +24,6 @@ public class ResultTests
 
         result.IsSuccess.Should().BeFalse();
         result.Value.Should().BeNull();
-        result.Error.Should().Be(error);
+        result.Errors.Should().ContainSingle().Which.Should().Be(error);
     }
 }
