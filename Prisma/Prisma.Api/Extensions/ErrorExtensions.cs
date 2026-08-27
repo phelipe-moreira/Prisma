@@ -45,6 +45,9 @@ public static class ErrorExtensions
         if (types.Contains(ErrorType.NotFound))
             return ErrorType.NotFound;
 
+        if (types.Contains(ErrorType.Conflict))
+            return ErrorType.Conflict;
+
         return ErrorType.Failure;
     }
 }
