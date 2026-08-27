@@ -6,7 +6,6 @@ using Microsoft.Extensions.Options;
 using Prisma.Application.Interfaces;
 using Prisma.Application.Services;
 using Prisma.Domain.Abstractions;
-using Prisma.Domain.Entities;
 using Prisma.Infrastructure.Auth;
 using Prisma.Infrastructure.Context;
 using Prisma.Infrastructure.Repositories;
@@ -74,13 +73,14 @@ public static class DependencyInjection
         services.AddScoped<INgoRepository, NgoRepository>();
         services.AddScoped<INgoService, NgoService>();
         services.AddScoped<IUserNgoFollowService, UserNgoFollowService>();
+        services.AddScoped<INgoAccessService, NgoAccessService>();
         services.AddScoped<IPostService, PostService>();
         services.AddScoped<IPostLikeRepository, PostLikeRepository>();
         services.AddScoped<IPostLikeService, PostLikeService>();
         services.AddScoped<ISavedPostService, SavedPostService>();
-        services.AddScoped<IPostMediaService, PostMediaService>();
         services.AddScoped<IStorageService, CloudflareR2StorageService>();
         services.AddScoped<IMediaService, MediaService>();
+        services.AddScoped<INgoAccessService, NgoAccessService>();
 
         return services;
     }
