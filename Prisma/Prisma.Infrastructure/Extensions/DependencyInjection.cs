@@ -80,6 +80,7 @@ public static class DependencyInjection
         services.AddScoped<ISavedPostService, SavedPostService>();
         services.AddScoped<IPostMediaService, PostMediaService>();
         services.AddScoped<IStorageService, CloudflareR2StorageService>();
+        services.AddScoped<IMediaService, MediaService>();
 
         return services;
     }

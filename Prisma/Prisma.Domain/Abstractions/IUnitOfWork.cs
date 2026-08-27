@@ -22,7 +22,7 @@ public interface IUnitOfWork
 
     IPostMediaRepository PostMediaRepository { get; }
 
-    IMediaRepository MediaRepository { get; }
+    IMediaRepository MediaRepository { get; }    
 
     Task<Result> ExecuteTransactionAsync(Func<Task<Result>> action, CancellationToken cancellationToken = default);
 }
