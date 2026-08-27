@@ -9,19 +9,20 @@ namespace Prisma.Application.Services;
 
 public class AuthService(
     IUnitOfWork unitOfWork,
-    IRefreshTokenRepository refreshTokenRepository,
     IPasswordHasher passwordHasher,
     IJwtTokenService jwtTokenService) : IAuthService
 {
     public async Task<Result<AuthToken>> LoginAsync(LoginRequest request, CancellationToken cancellationToken)
     {
-        var user = await unitOfWork.UserRepository.GetByEmailAsync(request.Email, cancellationToken);
+        var email = request.Email.Trim().ToLowerInvariant();
+
+        var user = await unitOfWork.UserRepository.GetByEmailAsync(email, cancellationToken);
 
         if (user is null)
             return Result<AuthToken>.Failure(AuthErrors.InvalidCredentials);
 
         if (!user.IsActive)
-            return Result<AuthToken>.Failure(AuthErrors.UserInactive);
+            return Result<AuthToken>.Failure(UserErrors.Inactive);
 
         var passwordIsValid = passwordHasher.Verify(request.Password, user.PasswordHash);
 
@@ -33,19 +34,26 @@ public class AuthService(
 
     public async Task LogoutAsync(string refreshToken, CancellationToken cancellationToken)
     {
-        var token = await refreshTokenRepository.GetByTokenAsync(refreshToken, cancellationToken);
+        var token = await unitOfWork.RefreshTokenRepository.GetByTokenAsync(refreshToken, cancellationToken);
 
         if (token is null || token.IsRevoked)
             return;
 
         token.Revoke();
 
-        await refreshTokenRepository.UpdateAsync(token, cancellationToken);
+        await unitOfWork.ExecuteTransactionAsync(
+            async () =>
+            {
+                await unitOfWork.RefreshTokenRepository.UpdateAsync(token, cancellationToken);
+
+                return Result.Success();
+
+            }, cancellationToken);
     }
 
     public async Task<Result<AuthToken>> RefreshTokenAsync(RefreshTokenRequest request, CancellationToken cancellationToken)
     {
-        var refreshToken = await refreshTokenRepository.GetByTokenAsync(request.RefreshToken, cancellationToken);
+        var refreshToken = await unitOfWork.RefreshTokenRepository.GetByTokenAsync(request.RefreshToken, cancellationToken);
 
         if (refreshToken is null)
             return Result<AuthToken>.Failure(AuthErrors.InvalidRefreshToken);
@@ -59,24 +67,21 @@ public class AuthService(
         var user = await unitOfWork.UserRepository.GetByIdAsync(refreshToken.UserId, cancellationToken);
 
         if (user is null)
-            return Result<AuthToken>.Failure(AuthErrors.UserNotFound);
+            return Result<AuthToken>.Failure(UserErrors.NotFound);
 
         if (!user.IsActive)
-            return Result<AuthToken>.Failure(AuthErrors.UserInactive);
+            return Result<AuthToken>.Failure(UserErrors.Inactive);
 
         refreshToken.Revoke();
 
-        await refreshTokenRepository.UpdateAsync(refreshToken, cancellationToken);
-
-        return await GenerateAndPersistTokensAsync(user, cancellationToken);
+        return await GenerateAndPersistTokensAsync(user, cancellationToken, refreshToken);
     }
 
     public async Task<Result<AuthToken>> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken)
     {
-        var emailAlreadyExists =
-            await unitOfWork.UserRepository.ExistsByEmailAsync(
-                request.Email, 
-                cancellationToken);
+        var email = request.Email.Trim().ToLowerInvariant();
+
+        var emailAlreadyExists = await unitOfWork.UserRepository.ExistsByEmailAsync(email, cancellationToken);
 
         if (emailAlreadyExists)
             return Result<AuthToken>.Failure(AuthErrors.EmailAlreadyExists);
@@ -85,15 +90,13 @@ public class AuthService(
 
         var user = User.Create(
             request.Name,
-            request.Email,
+            email,
             passwordHash);
 
-        await unitOfWork.UserRepository.AddAsync(user, cancellationToken);
-
-        return await GenerateAndPersistTokensAsync(user, cancellationToken);
+        return await GenerateAndPersistTokensAsync(user, cancellationToken, addUser: true);
     }
 
-    private async Task<Result<AuthToken>> GenerateAndPersistTokensAsync(User user, CancellationToken cancellationToken)
+    private async Task<Result<AuthToken>> GenerateAndPersistTokensAsync(User user, CancellationToken cancellationToken, RefreshToken? revokeRefreshToken = null, bool addUser = false)
     {
         var tokenResult = jwtTokenService.GenerateTokens(user);
 
@@ -102,7 +105,22 @@ public class AuthService(
             tokenResult.RefreshToken,
             tokenResult.RefreshTokenExpiresAt);
 
-        await refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
+        var transactionResult = await unitOfWork.ExecuteTransactionAsync(
+            async () =>
+            {
+                if (addUser)
+                    await unitOfWork.UserRepository.AddAsync(user, cancellationToken);
+
+                if(revokeRefreshToken is not null)
+                    await unitOfWork.RefreshTokenRepository.UpdateAsync(revokeRefreshToken, cancellationToken);
+
+                await unitOfWork.RefreshTokenRepository.AddAsync(refreshToken, cancellationToken);
+
+                return Result.Success();
+            }, cancellationToken);
+
+        if (transactionResult.IsFailure)
+            return Result<AuthToken>.Failure(transactionResult.Errors);
 
         var authToken = new AuthToken
         {
