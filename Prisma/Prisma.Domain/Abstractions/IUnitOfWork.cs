@@ -14,6 +14,8 @@ public interface IUnitOfWork
 
     IUserNgoFollowRepository UserNgoFollowRepository { get; }
 
+    IUserNgoRepository UserNgoRepository { get; }
+
     IPostRepository PostRepository { get; }
 
     IPostLikeRepository PostLikeRepository { get; }
