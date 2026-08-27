@@ -1,4 +1,4 @@
-﻿namespace Prisma.Domain.Entities;
+﻿namespace Prisma.Infrastructure.Storage;
 
 public class CloudflareR2Options
 {

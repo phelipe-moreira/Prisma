@@ -2,7 +2,6 @@
 using Amazon.S3.Model;
 using Microsoft.Extensions.Options;
 using Prisma.Application.Interfaces;
-using Prisma.Domain.Entities;
 using System.Net;
 
 namespace Prisma.Infrastructure.Storage;
