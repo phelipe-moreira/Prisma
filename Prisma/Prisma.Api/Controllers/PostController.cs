@@ -30,7 +30,10 @@ public class PostController(IPostService postService) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreatePostDto request, CancellationToken cancellationToken)
     {
-        var result = await postService.CreateAsync(request, cancellationToken);
+        var result = await postService.CreateAsync(
+            User.GetUserId(),
+            request,
+            cancellationToken);
 
         return result.ToApiResult();
     }
@@ -39,7 +42,11 @@ public class PostController(IPostService postService) : ControllerBase
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, UpdatePostDto request, CancellationToken cancellationToken)
     {
-        var result = await postService.UpdateAsync(id, request, cancellationToken);
+        var result = await postService.UpdateAsync(
+            User.GetUserId(),
+            id,
+            request,
+            cancellationToken);
 
         return result.ToApiResult();
     }
@@ -48,7 +55,10 @@ public class PostController(IPostService postService) : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
-        var result = await postService.RemoveAsync(id, cancellationToken);
+        var result = await postService.RemoveAsync(
+            User.GetUserId(),
+            id,
+            cancellationToken);
 
         return result.ToApiResult();
     }

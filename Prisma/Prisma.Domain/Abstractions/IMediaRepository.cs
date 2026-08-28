@@ -8,5 +8,5 @@ public interface IMediaRepository
 
     Task AddAsync(Media media, CancellationToken cancellationToken);
 
-    Task Remove(Media media);
+    Task Delete(Media media);
 }

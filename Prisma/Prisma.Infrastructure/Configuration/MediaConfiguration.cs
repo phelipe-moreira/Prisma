@@ -11,13 +11,5 @@ public class MediaConfiguration : IEntityTypeConfiguration<Media>
         builder.ToTable("media");
 
         builder.HasKey(x => x.Id);
-
-        builder.Property(x => x.Title)
-            .IsRequired()
-            .HasMaxLength(300);
-
-        builder.Property(x => x.Description)
-            .IsRequired(false)
-            .HasColumnType("text");
     }
 }

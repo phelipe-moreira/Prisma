@@ -22,7 +22,7 @@ public class MediaRepository(AppDbContext context) : IMediaRepository
             cancellationToken);
     }
 
-    public Task Remove(Media media)
+    public Task Delete(Media media)
     {
         context.Medias.Remove(media);
 

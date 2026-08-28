@@ -14,6 +14,8 @@ public interface IUnitOfWork
 
     IUserNgoFollowRepository UserNgoFollowRepository { get; }
 
+    IUserNgoRepository UserNgoRepository { get; }
+
     IPostRepository PostRepository { get; }
 
     IPostLikeRepository PostLikeRepository { get; }
@@ -22,7 +24,7 @@ public interface IUnitOfWork
 
     IPostMediaRepository PostMediaRepository { get; }
 
-    IMediaRepository MediaRepository { get; }
+    IMediaRepository MediaRepository { get; }    
 
     IRefreshTokenRepository RefreshTokenRepository { get; }
     Task<Result> ExecuteTransactionAsync(Func<Task<Result>> action, CancellationToken cancellationToken = default);
