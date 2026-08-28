@@ -24,6 +24,7 @@ public interface IUnitOfWork
 
     IMediaRepository MediaRepository { get; }
 
+    IRefreshTokenRepository RefreshTokenRepository { get; }
     Task<Result> ExecuteTransactionAsync(Func<Task<Result>> action, CancellationToken cancellationToken = default);
 }
 

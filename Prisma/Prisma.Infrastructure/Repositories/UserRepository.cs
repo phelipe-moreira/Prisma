@@ -12,8 +12,6 @@ public class UserRepository(AppDbContext context) : IUserRepository
     public async Task AddAsync(User user, CancellationToken cancellationToken)
     {
         await _context.Users.AddAsync(user, cancellationToken);
-
-        await _context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken)
@@ -44,10 +42,10 @@ public class UserRepository(AppDbContext context) : IUserRepository
             cancellationToken);
     }
 
-    public async Task UpdateAsync(User user, CancellationToken cancellationToken)
+    public Task UpdateAsync(User user, CancellationToken cancellationToken)
     {
         _context.Users.Update(user);
 
-        await _context.SaveChangesAsync(cancellationToken);
+        return Task.CompletedTask;
     }
 }

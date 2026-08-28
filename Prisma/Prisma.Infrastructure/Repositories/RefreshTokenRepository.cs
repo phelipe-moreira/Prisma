@@ -17,8 +17,6 @@ namespace Prisma.Infrastructure.Repositories
         public async Task AddAsync(RefreshToken refreshToken, CancellationToken cancellationToken)
         {
             await _context.RefreshTokens.AddAsync(refreshToken, cancellationToken);
-
-            await _context.SaveChangesAsync(cancellationToken);
         }
 
         public async Task<RefreshToken?> GetByTokenAsync(string token, CancellationToken cancellationToken)
@@ -30,11 +28,11 @@ namespace Prisma.Infrastructure.Repositories
                     cancellationToken);
         }
 
-        public async Task UpdateAsync(RefreshToken refreshToken, CancellationToken cancellationToken)
+        public Task UpdateAsync(RefreshToken refreshToken, CancellationToken cancellationToken)
         {
             _context.RefreshTokens.Update(refreshToken);
 
-            await _context.SaveChangesAsync(cancellationToken);
+            return Task.CompletedTask;
         }
     }
 }
