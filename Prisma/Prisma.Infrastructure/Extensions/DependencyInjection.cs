@@ -78,6 +78,7 @@ public static class DependencyInjection
         services.AddScoped<IPostLikeRepository, PostLikeRepository>();
         services.AddScoped<IPostLikeService, PostLikeService>();
         services.AddScoped<ISavedPostService, SavedPostService>();
+        services.AddScoped<IUserService, UserService>();
         services.AddScoped<IStorageService, CloudflareR2StorageService>();
         services.AddScoped<IMediaService, MediaService>();
         services.AddScoped<INgoAccessService, NgoAccessService>();
