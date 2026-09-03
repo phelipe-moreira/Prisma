@@ -189,7 +189,7 @@ public class NgoService(IUnitOfWork unitOfWork) : INgoService
             .Select(x => x.Id)
             .ToList();
 
-        var missingIds = request.CauseIds
+        var missingIds = request.Members.Keys
             .Except(memberIds)
             .ToList();
 
