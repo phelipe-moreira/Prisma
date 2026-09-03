@@ -20,7 +20,10 @@ public static class ErrorExtensions
         {
             ErrorType.Validation => new BadRequestObjectResult(response),
             ErrorType.Unauthorized => new UnauthorizedObjectResult(response),
-            ErrorType.Forbidden => new ForbidResult(),
+            ErrorType.Forbidden => new ObjectResult(response)
+            {
+                StatusCode = StatusCodes.Status403Forbidden
+            },
             ErrorType.NotFound => new NotFoundObjectResult(response),
             ErrorType.Conflict => new ConflictObjectResult(response),
             _ => new ObjectResult(response)

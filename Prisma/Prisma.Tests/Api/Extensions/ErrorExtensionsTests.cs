@@ -21,12 +21,6 @@ public class ErrorExtensionsTests
 
         var actionResult = new[] { error }.ToErrorResponse();
 
-        if (errorType is ErrorType.Forbidden)
-        {
-            actionResult.Should().BeOfType<ForbidResult>();
-            return;
-        }
-
         var objectResult = actionResult.Should().BeAssignableTo<ObjectResult>().Subject;
         objectResult.StatusCode.Should().Be(expectedStatusCode);
 
