@@ -239,7 +239,8 @@ public class NgoService(IUnitOfWork unitOfWork) : INgoService
                 UserId = x.UserId,
                 Name = x.User?.Name,
                 Role = x.Role
-            })]
+            })],
+            FollowersCount = ngo.Followers.Count
         };
     }
 }

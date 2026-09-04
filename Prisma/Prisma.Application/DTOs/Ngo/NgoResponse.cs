@@ -20,5 +20,6 @@ namespace Prisma.Application.DTOs.Ngo
         public DateTime UpdatedAt { get; set; }
         public List<CauseResponse> Causes { get; set; } = [];
         public List<UserNgoResponse> Members { get; set; } = [];
+        public int FollowersCount { get; set; }
     }
 }
