@@ -42,6 +42,19 @@ public class UserRepository(AppDbContext context) : IUserRepository
             cancellationToken);
     }
 
+    public async Task<User?> GetWithSavedPostsByIdAsync(Guid id, CancellationToken cancellationToken)
+    {
+        return await _context.Users
+            .AsNoTracking()
+            .Include(user => user.SavedPosts)
+                .ThenInclude(savedPost => savedPost.Post)
+                    .ThenInclude(post => post.Comments)
+            .Include(user => user.SavedPosts)
+                .ThenInclude(savedPost => savedPost.Post)
+                    .ThenInclude(post => post.PostLikes)
+            .FirstOrDefaultAsync(user => user.Id == id, cancellationToken);
+    }
+
     public Task UpdateAsync(User user, CancellationToken cancellationToken)
     {
         _context.Users.Update(user);

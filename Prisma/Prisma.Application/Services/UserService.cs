@@ -33,7 +33,7 @@ namespace Prisma.Application.Services
 
         public async Task<Result<UserResponse>> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)
         {
-            var user = await unitOfWork.UserRepository.GetByIdAsync(userId, cancellationToken);
+            var user = await unitOfWork.UserRepository.GetWithSavedPostsByIdAsync(userId, cancellationToken);
 
             if (user is null)
                 return Result<UserResponse>.Failure(UserErrors.NotFound);
@@ -106,7 +106,8 @@ namespace Prisma.Application.Services
                 ProfilePictureUrl = user.ProfilePictureUrl,
                 Bio = user.Bio,
                 CreatedAt = user.CreatedAt,
-                Role = user.Role
+                Role = user.Role,
+                SavedPosts = [.. user.SavedPosts.Select(savedPost => Prisma.Application.Extensions.PostExtensions.ToResponse(savedPost.Post))]
             };
         }
     }

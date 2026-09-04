@@ -11,5 +11,6 @@ namespace Prisma.Application.DTOs.User
         public string? Bio { get; set; }
         public DateTime CreatedAt { get; set; }
         public UserRole Role { get; set; }
+        public ICollection<Prisma.Application.DTOs.Post.PostResponse> SavedPosts { get; set; } = [];
     }
 }
