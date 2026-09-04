@@ -15,7 +15,15 @@ public static class PostExtensions
                 Title = post.Title,
                 Status = post.Status,
                 Content = post.Content,
-                Comments = post.Comments,
+                Comments = [.. post.Comments
+                    .Select(comment => new DTOs.Comment.CommentResponse(
+                        comment.Id,
+                        comment.PostId,
+                        comment.UserId,
+                        comment.ParentCommentId,
+                        comment.Content,
+                        comment.CreatedAt,
+                        comment.IsRemoved))],
                 Likes = post.PostLikes.Count,
                 CreatedAt = post.CreatedAt,
                 UpdatedAt = post.UpdatedAt

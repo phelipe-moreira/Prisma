@@ -6,4 +6,5 @@ public record CommentResponse(
     Guid UserId,
     Guid? ParentCommentId,
     string Content,
-    DateTime CreatedAt);
+    DateTime CreatedAt,
+    bool IsRemoved);

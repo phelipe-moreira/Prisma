@@ -12,7 +12,6 @@ namespace Prisma.Api.Controllers;
 public class CommentController(ICommentService commentService) : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<CommentResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
         var result = await commentService.GetAllAsync(cancellationToken);
@@ -21,8 +20,6 @@ public class CommentController(ICommentService commentService) : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(typeof(CommentResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
         var result = await commentService.GetByIdAsync(id, cancellationToken);
@@ -31,7 +28,6 @@ public class CommentController(ICommentService commentService) : ControllerBase
     }
 
     [HttpGet("parent/{parentId:guid}")]
-    [ProducesResponseType(typeof(IEnumerable<CommentResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetByParentId(Guid parentId, CancellationToken cancellationToken)
     {
         var result = await commentService.GetByParentIdAsync(parentId, cancellationToken);
@@ -41,8 +37,6 @@ public class CommentController(ICommentService commentService) : ControllerBase
 
     [Authorize]
     [HttpPost]
-    [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create([FromBody] CommentDto commentDto, CancellationToken cancellationToken)
     {
         var userId = User.GetUserId();
@@ -54,8 +48,6 @@ public class CommentController(ICommentService commentService) : ControllerBase
 
     [Authorize]
     [HttpPut("{id:guid}")]
-    [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCommentDto updateCommentDto, CancellationToken cancellationToken)
     {
         var result = await commentService.UpdateAsync(id, updateCommentDto, cancellationToken);
@@ -65,8 +57,6 @@ public class CommentController(ICommentService commentService) : ControllerBase
 
     [Authorize]
     [HttpDelete("{id:guid}")]
-    [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Remove(Guid id, CancellationToken cancellationToken)
     {
         var result = await commentService.RemoveAsync(id, cancellationToken);

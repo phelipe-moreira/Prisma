@@ -19,7 +19,7 @@ public class PostResponse
 
     public DateTime UpdatedAt { get; set; }
 
-    public ICollection<Domain.Entities.Comment> Comments { get; set; } = [];
+    public ICollection<Prisma.Application.DTOs.Comment.CommentResponse> Comments { get; set; } = [];
 
     public int Likes { get; set; }
 }
