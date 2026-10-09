@@ -3,7 +3,7 @@ WORKDIR /source
 
 COPY . .
 
-RUN dotnet publish ./Prisma.Api/Prisma.Api.csproj \
+RUN dotnet publish ./Prisma/Prisma.Api/Prisma.Api.csproj \
     -c Release \
     -o /app/publish
 
