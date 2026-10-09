@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="Prisma/Prisma.Api/Prisma.Api.csproj" />
+  <Project Path="Prisma/Prisma.Application/Prisma.Application.csproj" />
+  <Project Path="Prisma/Prisma.Domain/Prisma.Domain.csproj" />
+  <Project Path="Prisma/Prisma.Infrastructure/Prisma.Infrastructure.csproj" />
+  <Project Path="Prisma/Prisma.Tests/Prisma.Tests.csproj" />
+</Solution>
