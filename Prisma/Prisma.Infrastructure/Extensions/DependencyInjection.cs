@@ -47,7 +47,8 @@ public static class DependencyInjection
             var config = new AmazonS3Config
             {
                 ServiceURL = $"https://{options.AccountId}.r2.cloudflarestorage.com",
-                AuthenticationRegion = "auto"
+                AuthenticationRegion = "auto",
+                ForcePathStyle = true
             };
 
             return new AmazonS3Client(

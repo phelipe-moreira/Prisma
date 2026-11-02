@@ -1,5 +1,6 @@
 ﻿using Prisma.Application.DTOs.User;
 using Prisma.Application.Errors;
+using Prisma.Application.Extensions;
 using Prisma.Application.Interfaces;
 using Prisma.Domain.Abstractions;
 using Prisma.Domain.Entities;
@@ -7,7 +8,7 @@ using Prisma.Domain.Models;
 
 namespace Prisma.Application.Services
 {
-    public class UserService(IUnitOfWork unitOfWork, IPasswordHasher passwordHasher) : IUserService
+    public class UserService(IUnitOfWork unitOfWork, IPasswordHasher passwordHasher, IStorageService storageService) : IUserService
     {
         public async Task<Result> DeactivateAsync(Guid userId, CancellationToken cancellationToken = default)
         {
@@ -96,7 +97,46 @@ namespace Prisma.Application.Services
             return Result<UserResponse>.Success(MapToResponse(user));
         }
 
-        private static UserResponse MapToResponse(User user)
+        public async Task<Result<Prisma.Application.DTOs.Media.UploadMediaResponse>> GetProfilePictureUploadUrlAsync(
+            Guid userId,
+            Prisma.Application.DTOs.Media.UploadMediaRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            var user = await unitOfWork.UserRepository.GetByIdAsync(userId, cancellationToken);
+
+            if (user is null)
+                return Result<Prisma.Application.DTOs.Media.UploadMediaResponse>.Failure(UserErrors.NotFound);
+
+            if (!user.IsActive)
+                return Result<Prisma.Application.DTOs.Media.UploadMediaResponse>.Failure(UserErrors.Inactive);
+
+            var extension = request.ContentType switch
+            {
+                "image/jpeg" => "jpg",
+                "image/png" => "png",
+                "image/webp" => "webp",
+                _ => null
+            };
+
+            if (extension is null)
+                return Result<Prisma.Application.DTOs.Media.UploadMediaResponse>.Failure(MediaErrors.InvalidContentType);
+
+            const long maxImageSize = 10L * 1024L * 1024L;
+            if (request.FileSize <= 0 || request.FileSize > maxImageSize)
+                return Result<Prisma.Application.DTOs.Media.UploadMediaResponse>.Failure(MediaErrors.FileTooLarge);
+
+            var storageKey = $"profiles/{userId}/{Guid.NewGuid()}.{extension}";
+
+            return Result<Prisma.Application.DTOs.Media.UploadMediaResponse>.Success(new Prisma.Application.DTOs.Media.UploadMediaResponse
+            {
+                Id = Guid.NewGuid(),
+                StorageKey = storageKey,
+                UploadUrl = storageService.GenerateUploadUrl(storageKey, request.ContentType, TimeSpan.FromMinutes(15)),
+                PublicUrl = storageService.GetPublicUrl(storageKey)
+            });
+        }
+
+        private UserResponse MapToResponse(User user)
         {
             return new UserResponse
             {
@@ -107,7 +147,7 @@ namespace Prisma.Application.Services
                 Bio = user.Bio,
                 CreatedAt = user.CreatedAt,
                 Role = user.Role,
-                SavedPosts = [.. user.SavedPosts.Select(savedPost => Prisma.Application.Extensions.PostExtensions.ToResponse(savedPost.Post))]
+                SavedPosts = [.. user.SavedPosts.Select(savedPost => savedPost.Post.ToResponse(storageService, user.Id))]
             };
         }
     }
