@@ -22,4 +22,8 @@ public class PostResponse
     public ICollection<Prisma.Application.DTOs.Comment.CommentResponse> Comments { get; set; } = [];
 
     public int Likes { get; set; }
+
+    public bool IsLikedByCurrentUser { get; set; }
+
+    public ICollection<Prisma.Application.DTOs.Media.MediaResponse> Medias { get; set; } = [];
 }
