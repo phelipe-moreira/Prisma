@@ -26,6 +26,8 @@ public class PostRepository(AppDbContext context) : IPostRepository
             .Include(x => x.Comments)
             .Include(x => x.PostLikes)
             .Include(x => x.SavedPosts)
+            .Include(x => x.PostMedias)
+                .ThenInclude(x => x.Media)
             .Include(x => x.Ngo)            
             .ToListAsync(cancellationToken);
     }
@@ -37,6 +39,8 @@ public class PostRepository(AppDbContext context) : IPostRepository
             .Include(x => x.Comments)
             .Include(x => x.PostLikes)
             .Include(x => x.SavedPosts)
+            .Include(x => x.PostMedias)
+                .ThenInclude(x => x.Media)
             .Include(x => x.Ngo)
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }

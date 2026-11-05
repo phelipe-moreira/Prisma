@@ -10,7 +10,8 @@ namespace Prisma.Application.Services;
 
 public class PostService(
     IUnitOfWork unitOfWork,
-    INgoAccessService ngoAccessService) : IPostService
+    INgoAccessService ngoAccessService,
+    IStorageService storageService) : IPostService
 {
     public async Task<Result<Guid>> CreateAsync(
         Guid userId,
@@ -45,21 +46,21 @@ public class PostService(
     private async Task<bool> VerifyIfNgoExists(Guid ngoId) 
         => await unitOfWork.NgoRepository.GetByIdAsync(ngoId) is not null;
 
-    public async Task<Result<IEnumerable<PostResponse>>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<Result<IEnumerable<PostResponse>>> GetAllAsync(Guid? currentUserId, CancellationToken cancellationToken = default)
     {
         var posts = await unitOfWork.PostRepository.GetAllAsync(cancellationToken);
 
-        return Result.Success(posts.Select(x => x.ToResponse()));
+        return Result.Success(posts.Select(x => x.ToResponse(storageService, currentUserId)));
     }
 
-    public async Task<Result<PostResponse>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Result<PostResponse>> GetByIdAsync(Guid id, Guid? currentUserId, CancellationToken cancellationToken = default)
     {
         var post = await unitOfWork.PostRepository.GetByIdAsync(id, cancellationToken);
 
         if (post is null)
             return Result<PostResponse>.Failure(PostErrors.NotFound);
 
-        return Result.Success(post.ToResponse());
+        return Result.Success(post.ToResponse(storageService, currentUserId));
     }
 
     public async Task<Result> RemoveAsync(
