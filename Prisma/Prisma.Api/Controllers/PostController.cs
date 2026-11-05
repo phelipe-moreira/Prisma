@@ -13,7 +13,8 @@ public class PostController(IPostService postService) : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
-        var result = await postService.GetAllAsync(cancellationToken);
+        var currentUserId = User.Identity?.IsAuthenticated == true ? User.GetUserId() : (Guid?)null;
+        var result = await postService.GetAllAsync(currentUserId, cancellationToken);
 
         return result.ToApiResult();
     }
@@ -21,7 +22,8 @@ public class PostController(IPostService postService) : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var result = await postService.GetByIdAsync(id, cancellationToken);
+        var currentUserId = User.Identity?.IsAuthenticated == true ? User.GetUserId() : (Guid?)null;
+        var result = await postService.GetByIdAsync(id, currentUserId, cancellationToken);
 
         return result.ToApiResult();
     }
