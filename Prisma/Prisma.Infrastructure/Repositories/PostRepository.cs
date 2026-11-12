@@ -24,6 +24,7 @@ public class PostRepository(AppDbContext context) : IPostRepository
        return await context.Posts
             .AsNoTracking()
             .Include(x => x.Comments)
+            .ThenInclude(x => x.User)
             .Include(x => x.PostLikes)
             .Include(x => x.SavedPosts)
             .Include(x => x.PostMedias)
@@ -37,6 +38,7 @@ public class PostRepository(AppDbContext context) : IPostRepository
         return await context.Posts
             .AsNoTracking()
             .Include(x => x.Comments)
+            .ThenInclude(x => x.User)
             .Include(x => x.PostLikes)
             .Include(x => x.SavedPosts)
             .Include(x => x.PostMedias)

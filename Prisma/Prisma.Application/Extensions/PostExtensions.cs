@@ -26,7 +26,8 @@ public static class PostExtensions
                         comment.ParentCommentId,
                         comment.Content,
                         comment.CreatedAt,
-                        comment.IsRemoved))],
+                        comment.IsRemoved,
+                        comment.User.Name))],
                 Likes = post.PostLikes.Count,
                 IsLikedByCurrentUser = currentUserId.HasValue && post.PostLikes.Any(like => like.UserId == currentUserId.Value),
                 Medias = [.. post.PostMedias

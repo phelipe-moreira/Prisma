@@ -42,7 +42,8 @@ public class CommentService(IUnitOfWork unitOfWork) : ICommentService
                 c.ParentCommentId,
                 c.Content,
                 c.CreatedAt,
-                c.IsRemoved)));
+                c.IsRemoved,
+                c.User.Name)));
     }
 
     public async Task<Result<CommentResponse>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
@@ -59,7 +60,8 @@ public class CommentService(IUnitOfWork unitOfWork) : ICommentService
                 comment.ParentCommentId,
                 comment.Content,
                 comment.CreatedAt,
-                comment.IsRemoved);
+                comment.IsRemoved,
+                comment.User.Name);
 
         return Result.Success(commentResponse);
     }
@@ -76,7 +78,8 @@ public class CommentService(IUnitOfWork unitOfWork) : ICommentService
                 c.ParentCommentId,
                 c.Content,
                 c.CreatedAt,
-                c.IsRemoved)));
+                c.IsRemoved,
+                c.User.Name)));
     }
 
     public async Task<Result<Guid>> RemoveAsync(Guid id, CancellationToken cancellationToken = default)
