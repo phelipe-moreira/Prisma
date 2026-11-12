@@ -14,17 +14,27 @@ public class CommentRepository(AppDbContext context) : ICommentRepository
 
     public async Task<IEnumerable<Comment>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await context.Comments.AsNoTracking().ToListAsync(cancellationToken: cancellationToken);
+        return await context.Comments
+            .AsNoTracking()
+            .Include(x => x.User)
+            .ToListAsync(cancellationToken: cancellationToken);
     }
 
     public async Task<Comment?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await context.Comments.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, cancellationToken: cancellationToken);
+        return await context.Comments
+            .AsNoTracking()
+            .Include(x => x.User)
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken: cancellationToken);
     }
 
     public async Task<IEnumerable<Comment>> GetByParentIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await context.Comments.AsNoTracking().Where(x => x.ParentCommentId == id).ToListAsync(cancellationToken: cancellationToken);
+        return await context.Comments
+            .AsNoTracking()
+            .Include(x => x.User)
+            .Where(x => x.ParentCommentId == id)
+            .ToListAsync(cancellationToken: cancellationToken);
     }
 
     public void Update(Comment comment)

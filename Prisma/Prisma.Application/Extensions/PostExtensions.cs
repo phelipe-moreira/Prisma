@@ -23,7 +23,8 @@ public static class PostExtensions
                         comment.ParentCommentId,
                         comment.Content,
                         comment.CreatedAt,
-                        comment.IsRemoved))],
+                        comment.IsRemoved,
+                        comment.User.Name))],
                 Likes = post.PostLikes.Count,
                 CreatedAt = post.CreatedAt,
                 UpdatedAt = post.UpdatedAt
