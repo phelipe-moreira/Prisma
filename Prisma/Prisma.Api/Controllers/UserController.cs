@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Prisma.Api.Extensions;
+using Prisma.Application.DTOs.Media;
 using Prisma.Application.DTOs.User;
 using Prisma.Application.Interfaces;
 
@@ -27,6 +28,19 @@ namespace Prisma.Api.Controllers
             var userId = User.GetUserId();
 
             var result = await userService.UpdateProfileAsync(userId, request, cancellationToken);
+
+            return result.ToApiResult();
+        }
+
+        [HttpPost("me/profile-picture/upload-url")]
+        public async Task<IActionResult> GetProfilePictureUploadUrl(
+            [FromBody] UploadMediaRequest request,
+            CancellationToken cancellationToken)
+        {
+            var result = await userService.GetProfilePictureUploadUrlAsync(
+                User.GetUserId(),
+                request,
+                cancellationToken);
 
             return result.ToApiResult();
         }

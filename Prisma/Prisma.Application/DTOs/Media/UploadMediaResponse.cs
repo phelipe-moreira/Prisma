@@ -7,4 +7,6 @@ public class UploadMediaResponse
     public string? StorageKey { get; set; }
 
     public string? UploadUrl { get; set; }
+
+    public string? PublicUrl { get; set; }
 }

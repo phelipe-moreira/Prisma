@@ -30,6 +30,9 @@ namespace Prisma.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(CreateNgoRequest request, CancellationToken cancellationToken)
         {
+            // A ONG sempre pertence ao usuário autenticado; o cliente não pode escolher outro membro inicial.
+            request.UserId = User.GetUserId();
+
             var result = await ngoService.CreateAsync(request, cancellationToken);
 
             return result.ToApiResult();
